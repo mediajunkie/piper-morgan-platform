@@ -1,0 +1,28 @@
+# Minimal bootstrap - just what we need to start
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+pydantic==2.5.0
+python-dotenv==1.0.0
+
+# Direct LLM clients (no LangChain for now)
+anthropic>=0.30.0
+openai>=1.0.0
+
+# Vector DB
+chromadb==0.4.22
+
+# Database (for later)
+asyncpg==0.29.0
+sqlalchemy[asyncio]==2.0.23
+
+# Redis
+redis[hiredis]==5.0.1
+
+# Utilities
+structlog==23.2.0
+rich==13.7.0
+httpx>=0.25.0
+
+# Development
+pytest==7.4.3
+black==23.12.0
