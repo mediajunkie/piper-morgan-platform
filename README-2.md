@@ -61,12 +61,17 @@ python scripts/migrate.py
 
 # Start the development server
 python scripts/dev-server.py
+<<<<<<< HEAD
 ```
 
 ### Running Tests
 
 ```bash
 # Run all tests
+=======
+Running Tests
+bash# Run all tests
+>>>>>>> b1a0ac7c306c7094248f2f086800121b9ac02e24
 pytest
 
 # Run specific service tests
@@ -74,11 +79,15 @@ pytest services/intent-service/tests/
 
 # Run with coverage
 pytest --cov=services --cov-report=html
+<<<<<<< HEAD
 ```
 
 ## 📁 Project Structure
 
 ```
+=======
+📁 Project Structure
+>>>>>>> b1a0ac7c306c7094248f2f086800121b9ac02e24
 piper-morgan-platform/
 ├── services/                 # Microservices
 │   ├── domain/              # Core domain models and logic
@@ -96,7 +105,11 @@ piper-morgan-platform/
 │   └── terraform/          # Infrastructure as code
 ├── shared/                 # Shared libraries
 │   ├── contracts/          # Service contracts/interfaces
+<<<<<<< HEAD
 │   ├── utils/              # Common utilities
+=======
+│   ├── utils/             # Common utilities
+>>>>>>> b1a0ac7c306c7094248f2f086800121b9ac02e24
 │   └── events/             # Event definitions
 ├── frontend/               # User interfaces
 │   ├── web-app/           # Main web application
@@ -106,6 +119,7 @@ piper-morgan-platform/
 │   ├── api/               # API documentation
 │   └── poc-reference/     # Lessons from POC
 └── scripts/               # Development and deployment scripts
+<<<<<<< HEAD
 ```
 
 ## 🛠️ Development Workflow
@@ -114,6 +128,11 @@ piper-morgan-platform/
 
 ```bash
 # Use the service template
+=======
+🛠️ Development Workflow
+Creating a New Service
+bash# Use the service template
+>>>>>>> b1a0ac7c306c7094248f2f086800121b9ac02e24
 ./scripts/create-service.sh my-new-service
 
 # This creates:
@@ -122,12 +141,17 @@ piper-morgan-platform/
 # - Dockerfile
 # - Tests
 # - README
+<<<<<<< HEAD
 ```
 
 ### Adding a New Integration
 
 ```bash
 # Use the integration template
+=======
+Adding a New Integration
+bash# Use the integration template
+>>>>>>> b1a0ac7c306c7094248f2f086800121b9ac02e24
 ./scripts/create-integration.sh asana
 
 # This creates:
@@ -135,6 +159,7 @@ piper-morgan-platform/
 # - Plugin interface implementation
 # - Authentication handling
 # - Basic API client
+<<<<<<< HEAD
 ```
 
 ## 📊 Current Status
@@ -196,3 +221,62 @@ This project is proprietary and confidential. All rights reserved.
 ---
 
 **Note**: This is v1.0 of a complete platform rebuild. For the original proof-of-concept, see the archived [piper-morgan-poc](link-to-poc) repository.
+=======
+📊 Current Status
+Phase 1: Foundation (In Progress)
+
+ Architecture design
+ Domain model definition
+ Core infrastructure setup
+ Basic service scaffolding
+ CI/CD pipeline
+
+Phase 2: Core Capabilities (Upcoming)
+
+ Intent recognition service
+ GitHub integration
+ Basic orchestration
+ Simple web UI
+
+Phase 3: Intelligence Layer (Future)
+
+ Reasoning service
+ Knowledge graph
+ Learning mechanisms
+ Analytics integration
+
+🤝 Contributing
+We're not yet accepting external contributions, but team members should:
+
+Create feature branches from develop
+Follow the coding standards in docs/coding-standards.md
+Ensure all tests pass
+Update documentation as needed
+Create PR with clear description
+
+📚 Documentation
+
+Architecture Overview
+Domain Model
+API Documentation
+Deployment Guide
+POC Lessons Learned
+
+🔒 Security
+
+All API keys and secrets must be in environment variables
+Never commit .env files
+Use the provided pre-commit hooks
+See Security Guidelines for more
+
+📝 License
+This project is proprietary and confidential. All rights reserved.
+🙏 Acknowledgments
+
+Original POC team for proving the concept
+Claude (Anthropic) for development assistance
+The broader PM community for inspiration
+
+
+Note: This is v1.0 of a complete platform rebuild. For the original proof-of-concept, see the archived piper-morgan-poc repository.
+>>>>>>> b1a0ac7c306c7094248f2f086800121b9ac02e24
