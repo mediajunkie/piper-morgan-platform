@@ -1,4 +1,21 @@
 """
+Workflow definitions for PM processes
+Composes tasks into coherent workflows
+"""
+from dataclasses import dataclass, field
+from typing import Dict, List, Any, Optional
+from datetime import datetime
+import uuid
+
+from services.shared_types import WorkflowType, WorkflowStatus, TaskType, TaskStatus
+from .tasks import Task
+
+# Remove the enum definitions for WorkflowType and WorkflowStatus since they're now imported
+
+
+
+
+"""
 Core domain models for Piper Morgan.
 These represent the PM concepts that drive all functionality.
 """
