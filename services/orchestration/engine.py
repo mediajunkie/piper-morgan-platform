@@ -10,11 +10,9 @@ import structlog
 from services.llm import llm_client
 from services.domain.models import Intent, IntentCategory
 from services.database import RepositoryFactory
-from .workflows import (
-    Workflow, WorkflowType, WorkflowStatus, 
-    WorkflowDefinition, WORKFLOW_DEFINITIONS
-)
-from .tasks import Task, TaskType, TaskStatus, TaskResult
+from services.shared_types import WorkflowType, WorkflowStatus, TaskType, TaskStatus
+from .workflows import Workflow, WorkflowDefinition, WORKFLOW_DEFINITIONS
+from .tasks import Task, TaskResult
 
 logger = structlog.get_logger()
 

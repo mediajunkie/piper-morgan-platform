@@ -1,24 +1,8 @@
 """
-Workflow definitions for PM processes
-Composes tasks into coherent workflows
+Piper Morgan 1.0 - Domain Models
+The heart of the system - these models drive everything else.
 """
-from dataclasses import dataclass, field
-from typing import Dict, List, Any, Optional
-from datetime import datetime
-import uuid
-
-from services.shared_types import WorkflowType, WorkflowStatus, TaskType, TaskStatus
-from .tasks import Task
-
-# Remove the enum definitions for WorkflowType and WorkflowStatus since they're now imported
-
-
-
-
-"""
-Core domain models for Piper Morgan.
-These represent the PM concepts that drive all functionality.
-"""
+# 2025-06-03: Cleaned up duplicate header and removed incorrect import of Task.
 from dataclasses import dataclass, field
 from typing import List, Optional, Dict, Any
 from datetime import datetime
@@ -51,7 +35,7 @@ class Feature:
     status: str = "draft"
     created_at: datetime = field(default_factory=datetime.now)
     
-    # Relationships  
+    # Relationships
     dependencies: List['Feature'] = field(default_factory=list)
     risks: List['Risk'] = field(default_factory=list)
 
@@ -65,7 +49,7 @@ class Stakeholder:
     influence_level: int = 1  # 1-5 scale
     satisfaction: Optional[float] = None
 
-@dataclass 
+@dataclass
 class WorkItem:
     """Universal work item - can be from any system"""
     id: str = field(default_factory=lambda: str(uuid4()))
@@ -114,7 +98,7 @@ class FeatureCreated(Event):
 @dataclass
 class InsightGenerated(Event):
     """AI generated an insight"""
-    type: str = "insight.generated" 
+    type: str = "insight.generated"
     insight: str = ""
     confidence: float = 0.0
     sources: List[str] = field(default_factory=list)

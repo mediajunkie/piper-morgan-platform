@@ -2,12 +2,15 @@
 Orchestration Service
 Handles multi-step workflow execution for PM tasks
 """
-from .engine import engine, OrchestrationEngine
-from .workflows import (
-    Workflow, WorkflowType, WorkflowStatus,
-    WorkflowDefinition, WORKFLOW_DEFINITIONS
+# 2025-06-03: Updated imports to use shared_types for enums.
+from services.shared_types import ( #
+    WorkflowType, WorkflowStatus,
+    TaskType, TaskStatus
 )
-from .tasks import Task, TaskType, TaskStatus, TaskResult
+
+from .engine import engine, OrchestrationEngine #
+from .workflows import Workflow, WorkflowDefinition, WORKFLOW_DEFINITIONS #
+from .tasks import Task, TaskResult #
 
 __all__ = [
     # Engine
@@ -16,14 +19,16 @@ __all__ = [
     
     # Workflows
     "Workflow",
-    "WorkflowType", 
-    "WorkflowStatus",
     "WorkflowDefinition",
     "WORKFLOW_DEFINITIONS",
     
     # Tasks
     "Task",
+    "TaskResult",
+    
+    # Shared Enums
+    "WorkflowType",
+    "WorkflowStatus",
     "TaskType",
-    "TaskStatus", 
-    "TaskResult"
+    "TaskStatus"
 ]

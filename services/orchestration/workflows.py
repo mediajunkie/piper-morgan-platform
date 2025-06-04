@@ -7,12 +7,11 @@ from typing import Dict, List, Any, Optional
 from datetime import datetime
 import uuid
 
+# Ensure all enums are imported from shared_types
 from services.shared_types import WorkflowType, WorkflowStatus, TaskType, TaskStatus
+
+# Import Task class from the local tasks module
 from .tasks import Task
-
-# Remove the enum definitions for WorkflowType and WorkflowStatus since they're now imported
-
-from .tasks import Task, TaskType, TaskStatus
 
 @dataclass
 class WorkflowDefinition:
@@ -66,7 +65,7 @@ class Workflow:
     def is_complete(self) -> bool:
         """Check if all tasks are done"""
         return all(
-            task.status in [TaskStatus.COMPLETED, TaskStatus.SKIPPED] 
+            task.status in [TaskStatus.COMPLETED, TaskStatus.SKIPPED]
             for task in self.tasks
         )
     
