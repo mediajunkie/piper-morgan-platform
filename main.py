@@ -11,7 +11,10 @@ from typing import Optional, Dict, Any
 import logging
 from dotenv import load_dotenv
 import os
-import redis.asyncio as redis
+from fastapi import File, UploadFile, Form
+import tempfile
+import shutil
+from services.knowledge_graph import get_ingester
 
 # Load environment variables FIRST
 load_dotenv()
@@ -19,8 +22,6 @@ load_dotenv()
 from services.domain.models import Product, Feature, Intent, IntentCategory
 from services.intent_service import classifier
 from services.orchestration import engine, WorkflowType, WorkflowStatus
-from shared.events import EventBus
-from services.feedback import FeedbackCapture
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -43,63 +44,17 @@ class WorkflowResponse(BaseModel):
     tasks: list
     message: str
 
-class CorrectionRequest(BaseModel):
-    intent_id: str
-    correction_type: str
-    original: Dict[str, Any]
-    corrected: Dict[str, Any]
-    metadata: Optional[Dict[str, Any]] = None
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup
     logger.info("🚀 Starting Piper Morgan 1.0...")
-    
-    # Initialize event bus
-    app.state.event_bus = EventBus()
-    
-    # Initialize Redis connection for feedback capture
-    try:
-        redis_url = os.getenv("REDIS_URL", "redis://localhost:6379")
-        app.state.redis_client = await redis.from_url(redis_url)
-        # Test the connection
-        await app.state.redis_client.ping()
-        logger.info("✅ Redis connected")
-        
-        # Initialize feedback capture
-        app.state.feedback = FeedbackCapture(app.state.redis_client, app.state.event_bus)
-        logger.info("✅ Feedback capture initialized")
-    except Exception as e:
-        logger.error(f"❌ Redis connection failed: {e}")
-        logger.error("❌ Feedback capture is OFFLINE - corrections will not be stored!")
-        app.state.redis_client = None
-        app.state.feedback = None
-        # You could also raise here if you want to prevent startup without Redis:
-        # raise RuntimeError(f"Cannot start without Redis: {e}")
-    
-    # Subscribe to learning events (for logging now, processing later)
-    app.state.event_bus.subscribe(
-        "intent.classified",
-        lambda e: logger.info(f"Intent classified: {e['data'].get('intent_id', 'unknown')}")
-    )
-    
-    app.state.event_bus.subscribe(
-        "feedback.correction",
-        lambda e: logger.info(f"Correction captured: {e['data'].get('intent_id', 'unknown')}")
-    )
-    
     logger.info("✅ Domain models loaded")
     logger.info("✅ LLM clients initialized")
     logger.info("✅ Intent classifier ready")
     logger.info("✅ Orchestration engine ready")
-    logger.info("✅ Learning scaffolding active")
-    
     yield
-    
     # Shutdown
     logger.info("Shutting down...")
-    if app.state.redis_client:
-        await app.state.redis_client.close()
 
 # Create FastAPI app
 app = FastAPI(
@@ -124,12 +79,11 @@ async def health():
         "status": "healthy",
         "services": {
             "postgres": "connected",
-            "redis": "connected" if hasattr(app.state, 'redis_client') and app.state.redis_client else "disconnected",
-            "chromadb": "connected",
+            "redis": "connected",
+            "chromadb": "connected", 
             "temporal": "connected",
             "llm": "ready",
-            "orchestration": "ready",
-            "learning": "active" if hasattr(app.state, 'feedback') and app.state.feedback else "inactive"
+            "orchestration": "ready"
         }
     }
 
@@ -137,14 +91,8 @@ async def health():
 async def process_intent(request: IntentRequest, background_tasks: BackgroundTasks):
     """Process a natural language message with real AI and optionally create workflow"""
     try:
-        # Use real intent classifier with event emission
-        # Pass event bus if classifier has been updated to use it
-        if hasattr(app.state, 'event_bus'):
-            # If your classifier has been updated to accept event_bus
-            # intent = await classifier.classify(request.message, event_bus=app.state.event_bus)
-            intent = await classifier.classify(request.message)
-        else:
-            intent = await classifier.classify(request.message)
+        # Use real intent classifier
+        intent = await classifier.classify(request.message)
         
         # Try to create a workflow from the intent
         workflow = await engine.create_workflow_from_intent(intent)
@@ -170,50 +118,20 @@ async def process_intent(request: IntentRequest, background_tasks: BackgroundTas
             else:
                 response_text += "I'll help you learn from this."
         
-        # Build intent dict with learning signals if available
-        intent_dict = {
-            "category": intent.category.value,
-            "action": intent.action,
-            "confidence": intent.confidence,
-            "context": intent.context
-        }
-        
-        # Add learning signals if they exist
-        if hasattr(intent, 'learning_signals'):
-            intent_dict["learning_signals"] = intent.learning_signals
-        
         return IntentResponse(
             message=request.message,
-            intent=intent_dict,
+            intent={
+                "category": intent.category.value,
+                "action": intent.action,
+                "confidence": intent.confidence,
+                "context": intent.context
+            },
             response=response_text,
             workflow_id=workflow_id
         )
     except Exception as e:
         logger.error(f"Intent processing failed: {e}")
         raise HTTPException(status_code=500, detail="Failed to process intent")
-
-@app.post("/api/v1/feedback/correction")
-async def submit_correction(correction: CorrectionRequest):
-    """Capture user corrections to Piper Morgan's outputs"""
-    if not app.state.feedback:
-        logger.error("Feedback capture attempted but Redis is offline!")
-        raise HTTPException(
-            status_code=503,
-            detail="Feedback capture service is not available - Redis connection failed at startup"
-        )
-    
-    try:
-        result = await app.state.feedback.capture_correction(
-            intent_id=correction.intent_id,
-            correction_type=correction.correction_type,
-            original_value=correction.original,
-            corrected_value=correction.corrected,
-            metadata=correction.metadata
-        )
-        return {"status": "captured", "correction_id": result.get("id", "unknown")}
-    except Exception as e:
-        logger.error(f"Failed to capture correction: {e}")
-        raise HTTPException(status_code=500, detail="Failed to capture feedback")
 
 @app.get("/api/v1/workflows/{workflow_id}", response_model=WorkflowResponse)
 async def get_workflow(workflow_id: str):
@@ -267,26 +185,97 @@ async def list_products():
     )
     return [sample_product]
 
-# New endpoint to check learning status
-@app.get("/api/v1/learning/status")
-async def learning_status():
-    """Get current learning system status"""
-    status = {
-        "feedback_capture": "active" if app.state.feedback else "inactive",
-        "event_bus": "active" if hasattr(app.state, 'event_bus') else "inactive",
-        "events_captured": len(app.state.event_bus.event_store) if hasattr(app.state, 'event_bus') else 0
-    }
+# Add these endpoints to main.py right before the if __name__ == "__main__": line
+
+@app.post("/api/v1/knowledge/upload")
+async def upload_document(
+    file: UploadFile = File(...),
+    title: Optional[str] = Form(None),
+    author: Optional[str] = Form(None),
+    source_type: Optional[str] = Form("reference"),
+    knowledge_domain: Optional[str] = Form("pm_fundamentals")
+):
+    """
+    Upload a document to the knowledge base
     
-    # If Redis is connected, get some stats
-    if app.state.redis_client:
+    Args:
+        file: The document file (PDF supported)
+        title: Document title
+        author: Document author  
+        source_type: Type of source (reference, guide, internal, etc.)
+        knowledge_domain: Knowledge domain (pm_fundamentals, business_context, product_context, task_context)
+    """
+    # Validate file type
+    if not file.filename.lower().endswith('.pdf'):
+        raise HTTPException(status_code=400, detail="Only PDF files are currently supported")
+    
+    # Validate knowledge domain
+    valid_domains = ["pm_fundamentals", "business_context", "product_context", "task_context"]
+    if knowledge_domain not in valid_domains:
+        raise HTTPException(status_code=400, detail=f"Invalid knowledge domain. Must be one of: {valid_domains}")
+    
+    # Create temp file
+    with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as tmp_file:
         try:
-            # Count correction keys
-            correction_keys = await app.state.redis_client.keys("correction:*")
-            status["corrections_stored"] = len(correction_keys)
-        except:
-            status["corrections_stored"] = "unknown"
+            # Copy uploaded file to temp location
+            shutil.copyfileobj(file.file, tmp_file)
+            tmp_file_path = tmp_file.name
+            
+            # Prepare metadata
+            metadata = {
+                "title": title or file.filename,
+                "author": author or "Unknown",
+                "source_type": source_type,
+                "knowledge_domain": knowledge_domain,
+                "original_filename": file.filename
+            }
+            
+            # Ingest the document
+            logger.info(f"Ingesting document: {file.filename} into domain: {knowledge_domain}")
+            result = await get_ingester().ingest_pdf(tmp_file_path, metadata)
+            
+            # Emit event for learning system
+            if hasattr(app.state, 'event_bus'):
+                await app.state.event_bus.emit("knowledge.document_added", {
+                    "document_id": result.get("document_id"),
+                    "title": metadata["title"],
+                    "knowledge_domain": knowledge_domain,
+                    "chunks": result.get("chunks_created", 0)
+                })
+            
+            return {
+                "status": "success",
+                "message": f"Document '{metadata['title']}' successfully ingested into {knowledge_domain}",
+                "details": result
+            }
+            
+        except Exception as e:
+            logger.error(f"Document upload failed: {e}")
+            raise HTTPException(status_code=500, detail=f"Failed to process document: {str(e)}")
+        finally:
+            # Clean up temp file
+            if os.path.exists(tmp_file_path):
+                os.unlink(tmp_file_path)
+
+@app.get("/api/v1/knowledge/search")
+async def search_knowledge(query: str, limit: int = 5):
+    """
+    Search the knowledge base
     
-    return status
+    Args:
+        query: Search query
+        limit: Maximum number of results
+    """
+    try:
+        results = await get_ingester().search(query, n_results=limit)
+        return {
+            "query": query,
+            "results": results,
+            "count": len(results)
+        }
+    except Exception as e:
+        logger.error(f"Knowledge search failed: {e}")
+        raise HTTPException(status_code=500, detail="Search failed")
 
 if __name__ == "__main__":
     uvicorn.run(

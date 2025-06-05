@@ -158,5 +158,12 @@ class DocumentIngester:
         
         return formatted_results
 
-# Create singleton instance
-ingester = DocumentIngester()
+# Create singleton instance - but lazy initialize
+_ingester = None
+
+def get_ingester():
+    """Lazy initialization of DocumentIngester"""
+    global _ingester
+    if _ingester is None:
+        _ingester = DocumentIngester()
+    return _ingester
