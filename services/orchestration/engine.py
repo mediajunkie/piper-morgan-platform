@@ -88,17 +88,49 @@ class OrchestrationEngine:
         
         return workflow
     
+# Replace the _map_intent_to_workflow method in services/orchestration/engine.py
+
     def _map_intent_to_workflow(self, intent: Intent) -> Optional[WorkflowType]:
         """Map intent to appropriate workflow type"""
+        
+        # Normalize the action for easier matching
+        action_lower = intent.action.lower()
+        
         if intent.category == IntentCategory.EXECUTION:
-            if "create" in intent.action.lower() and "feature" in intent.action.lower():
-                return WorkflowType.CREATE_FEATURE
+            # Creation tasks
+            if "create" in action_lower:
+                if "feature" in action_lower:
+                    return WorkflowType.CREATE_FEATURE
+                elif "ticket" in action_lower or "issue" in action_lower:
+                    return WorkflowType.CREATE_TICKET
+                elif "task" in action_lower:
+                    return WorkflowType.CREATE_TASK
+            # Review tasks
+            elif "review" in action_lower or "check" in action_lower:
+                return WorkflowType.REVIEW_ITEM
+                
         elif intent.category == IntentCategory.ANALYSIS:
-            if "metric" in intent.action.lower():
+            if "metric" in action_lower or "analyz" in action_lower:
                 return WorkflowType.ANALYZE_METRICS
-        # Add more mappings as needed
+                
+        elif intent.category == IntentCategory.SYNTHESIS:
+            if "report" in action_lower or "generat" in action_lower:
+                return WorkflowType.GENERATE_REPORT
+                
+        elif intent.category == IntentCategory.STRATEGY:
+            if "plan" in action_lower or "strateg" in action_lower:
+                return WorkflowType.PLAN_STRATEGY
+                
+        elif intent.category == IntentCategory.LEARNING:
+            return WorkflowType.LEARN_PATTERN
+            
+        # Log unmapped intents for debugging
+        logger.warning(
+            f"No workflow mapping for intent: category={intent.category.value}, "
+            f"action={intent.action}"
+        )
         return None
-    
+        
     async def execute_workflow(self, workflow_id: str) -> Dict[str, Any]:
         """
         Execute a workflow asynchronously

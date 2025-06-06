@@ -14,10 +14,13 @@ class IntentCategory(Enum):
 class WorkflowType(Enum):
     CREATE_FEATURE = "create_feature"
     ANALYZE_METRICS = "analyze_metrics"
-    PRIORITIZE_BACKLOG = "prioritize_backlog"
+    CREATE_TICKET = "create_ticket"
+    CREATE_TASK = "create_task"
+    REVIEW_ITEM = "review_item"
     GENERATE_REPORT = "generate_report"
-    STAKEHOLDER_UPDATE = "stakeholder_update"
-
+    PLAN_STRATEGY = "plan_strategy"
+    LEARN_PATTERN = "learn_pattern"
+    
 class WorkflowStatus(Enum):
     PENDING = "pending"
     RUNNING = "running"

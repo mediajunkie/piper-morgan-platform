@@ -6,6 +6,7 @@ from services.domain.models import Intent, IntentCategory
 from services.llm.clients import llm_client
 from shared.events import EventBus
 import structlog
+from services.knowledge_graph import get_ingester
 
 logger = structlog.get_logger()
 
@@ -61,14 +62,30 @@ class IntentClassifier:
         
         return intent
     
+# Then update the _classify_with_reasoning method:
     async def _classify_with_reasoning(
         self, message: str, context: Dict
     ) -> Tuple[Intent, Dict]:
         """Classification that returns both result and reasoning trace"""
         
+        # Search knowledge base for relevant context
+        knowledge_context = ""
+        try:
+            search_results = await get_ingester().search(message, n_results=3)
+            if search_results:
+                knowledge_context = "\n\nRelevant PM knowledge:\n"
+                for i, result in enumerate(search_results, 1):
+                    knowledge_context += f"{i}. {result['content'][:200]}...\n"
+        except Exception as e:
+            logger.warning(f"Knowledge search failed: {e}")
+        
+# Update this part of the prompt in _classify_with_reasoning method:
+
         prompt = f"""Analyze this PM request and classify it.
 
 Request: "{message}"
+
+{knowledge_context}
 
 Respond with JSON containing:
 {{
@@ -77,7 +94,8 @@ Respond with JSON containing:
     "confidence": 0.0-1.0,
     "reasoning": "why you chose this classification",
     "knowledge_domains": ["domains that would help"],
-    "ambiguity_notes": ["any unclear aspects"]
+    "ambiguity_notes": ["any unclear aspects"],
+    "knowledge_used": ["what PM knowledge informed this classification"]
 }}
 
 Categories:
@@ -85,7 +103,15 @@ Categories:
 - ANALYSIS: Reviewing data, finding patterns, checking metrics
 - SYNTHESIS: Generating documents, summaries, or reports  
 - STRATEGY: Planning, prioritizing, or making recommendations
-- LEARNING: Understanding patterns, improving processes"""
+- LEARNING: Understanding patterns, improving processes
+
+For the "action" field, use these patterns:
+- For creating: "create_[thing]" (e.g., create_feature, create_ticket, create_task)
+- For analyzing: "analyze_[thing]" (e.g., analyze_metrics, analyze_data)
+- For reviewing: "review_[thing]" (e.g., review_code, review_design)
+- For generating: "generate_[thing]" (e.g., generate_report, generate_summary)
+- For planning: "plan_[thing]" (e.g., plan_strategy, plan_sprint)
+"""
 
         try:
             # Use your task-based routing with "intent_classification" task type
@@ -102,17 +128,29 @@ Categories:
                 category=IntentCategory[parsed["category"]],
                 action=parsed["action"],
                 confidence=parsed["confidence"],
-                context={"original_message": message}
+                context={
+                    "original_message": message,
+                    "knowledge_used": parsed.get("knowledge_used", [])
+                }
             )
             
             reasoning = {
                 "classification_reasoning": parsed["reasoning"],
                 "helpful_knowledge_domains": parsed.get("knowledge_domains", []),
-                "ambiguity_notes": parsed.get("ambiguity_notes", [])
+                "ambiguity_notes": parsed.get("ambiguity_notes", []),
+                "knowledge_used": parsed.get("knowledge_used", [])
             }
             
             return intent, reasoning
             
+        except json.JSONDecodeError as e:
+            logger.error(f"Failed to parse LLM response as JSON: {e}")
+            # Try to extract what we can from the response
+            intent = self._fallback_classify(message)
+            reasoning = {"error": "JSON parse failed", "raw_response": response[:200]}
+            return intent, reasoning
+
+
         except json.JSONDecodeError as e:
             logger.error(f"Failed to parse LLM response as JSON: {e}")
             # Try to extract what we can from the response
