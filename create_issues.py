@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Piper Morgan 1.0 - GitHub Issues Generator
+Piper Morgan 1.0 - GitHub Issues Generator - Fixed Parser
 Creates GitHub issues from backlog document for project management
 Date: June 6, 2025
 """
@@ -67,6 +67,7 @@ class BacklogParser:
         
         # Split content into sections
         sections = self._split_into_sections()
+        print_status(f"Found {len(sections)} priority sections")
         
         for section in sections:
             items = self._parse_section(section)
@@ -84,23 +85,56 @@ class BacklogParser:
         in_section = False
         
         for line in lines:
-            if line.startswith('## 🔥 P0') or line.startswith('## 🎯 P1') or \
-               line.startswith('## 📈 P2') or line.startswith('## 🚀 P3') or \
-               line.startswith('## 🔬 Research'):
+            # Fixed: More flexible pattern matching for section headers
+            if re.match(r'^## 🔥.*P0', line):
                 if current_section and in_section:
                     sections.append('\n'.join(current_section))
                 current_section = [line]
                 in_section = True
-            elif line.startswith('##') and in_section:
+                print_status(f"Found section: {line[:50]}...")
+            elif re.match(r'^## 🎯.*P1', line):
+                if current_section and in_section:
+                    sections.append('\n'.join(current_section))
+                current_section = [line]
+                in_section = True
+                print_status(f"Found section: {line[:50]}...")
+            elif re.match(r'^## 📈.*P2', line):
+                if current_section and in_section:
+                    sections.append('\n'.join(current_section))
+                current_section = [line]
+                in_section = True
+                print_status(f"Found section: {line[:50]}...")
+            elif re.match(r'^## 🚀.*P3', line):
+                if current_section and in_section:
+                    sections.append('\n'.join(current_section))
+                current_section = [line]
+                in_section = True
+                print_status(f"Found section: {line[:50]}...")
+            elif re.match(r'^## 🔬.*Research', line):
+                if current_section and in_section:
+                    sections.append('\n'.join(current_section))
+                current_section = [line]
+                in_section = True
+                print_status(f"Found section: {line[:50]}...")
+            elif line.startswith('## ') and in_section:
+                # Hit a different section, save current and stop processing this section
                 if current_section:
                     sections.append('\n'.join(current_section))
+                    print_status(f"Ending section, found: {line[:50]}...")
                 current_section = []
                 in_section = False
             elif in_section:
                 current_section.append(line)
         
+        # Don't forget the last section
         if current_section and in_section:
             sections.append('\n'.join(current_section))
+        
+        # Debug: show section info
+        for i, section in enumerate(sections):
+            section_lines = section.split('\n')
+            header = section_lines[0] if section_lines else "Unknown"
+            print_status(f"Section {i+1}: {header[:50]}... ({len(section)} chars)")
         
         return sections
     
@@ -110,13 +144,18 @@ class BacklogParser:
         
         # Extract priority from section header
         priority = self._extract_priority(section)
+        print_status(f"Parsing {priority} section...")
         
         # Find all items in section (start with ###)
-        item_pattern = r'### (PM-\w+): (.+?)\n(.*?)(?=### |$)'
+        # Updated pattern to handle the specific format with separate lines
+        item_pattern = r'### (PM-[^:]+): (.+?)\n(.*?)(?=### |---|\Z)'
         matches = re.findall(item_pattern, section, re.DOTALL)
+        
+        print_status(f"Found {len(matches)} items in {priority} section")
         
         for match in matches:
             item_id, title, content = match
+            print_status(f"Parsing item: {item_id}")
             item = self._parse_item(item_id, title, content, priority)
             if item:
                 items.append(item)
@@ -125,55 +164,79 @@ class BacklogParser:
     
     def _extract_priority(self, section: str) -> str:
         """Extract priority level from section header"""
-        if '🔥 P0' in section:
+        if '🔥' in section and 'P0' in section:
             return 'P0'
-        elif '🎯 P1' in section:
+        elif '🎯' in section and 'P1' in section:
             return 'P1'
-        elif '📈 P2' in section:
+        elif '📈' in section and 'P2' in section:
             return 'P2'
-        elif '🚀 P3' in section:
+        elif '🚀' in section and 'P3' in section:
             return 'P3'
-        elif '🔬 Research' in section:
+        elif '🔬' in section and 'Research' in section:
             return 'Research'
         return 'Unknown'
     
     def _parse_item(self, item_id: str, title: str, content: str, priority: str) -> Optional[BacklogItem]:
         """Parse individual backlog item"""
         try:
-            # Extract story (first line after title)
-            story_match = re.search(r'\*\*Story\*\*: (.+?)(?:\n|$)', content)
-            story = story_match.group(1) if story_match else f"As a user, I want {title}"
+            # Extract story from **Story**: line
+            story_match = re.search(r'\*\*Story\*\*:\s*(.+?)(?:\n|$)', content)
+            story = story_match.group(1).strip() if story_match else f"As a user, I want {title}"
             
-            # Extract description
-            desc_match = re.search(r'\*\*Description\*\*: (.+?)(?:\n\*\*|$)', content, re.DOTALL)
-            if not desc_match:
-                desc_match = re.search(r'\*\*Current State\*\*: (.+?)(?:\n\*\*|$)', content, re.DOTALL)
-            description = desc_match.group(1).strip() if desc_match else content[:200] + "..."
+            # Extract description - try multiple patterns
+            description = ""
+            for pattern in [
+                r'\*\*Current State\*\*:\s*(.+?)(?:\n\*\*|\n\Z)',
+                r'\*\*Description\*\*:\s*(.+?)(?:\n\*\*|\n\Z)',
+                r'\*\*Reality Check\*\*:\s*(.+?)(?:\n\*\*|\n\Z)'
+            ]:
+                desc_match = re.search(pattern, content, re.DOTALL)
+                if desc_match:
+                    description = desc_match.group(1).strip()
+                    break
             
-            # Extract acceptance criteria
-            criteria_match = re.search(r'\*\*Acceptance Criteria\*\*:\s*\n((?:- .+\n?)*)', content)
+            if not description:
+                description = content[:200] + "..."
+            
+            # Extract acceptance criteria from **Acceptance Criteria**: section
             criteria = []
+            criteria_match = re.search(r'\*\*Acceptance Criteria\*\*:\s*\n((?:- .+\n?)*)', content)
             if criteria_match:
                 criteria_text = criteria_match.group(1)
-                criteria = [line.strip('- ').strip() for line in criteria_text.split('\n') if line.strip().startswith('-')]
+                criteria = [line.strip('- ').strip() for line in criteria_text.split('\n')
+                           if line.strip() and line.strip().startswith('-')]
             
-            # Extract estimate
-            estimate_match = re.search(r'\*\*Estimate\*\*: (\d+) points?', content)
+            # Extract estimate from **Estimate**: X points pattern
+            estimate_match = re.search(r'\*\*Estimate\*\*:\s*(\d+)\s*points?', content)
             estimate = int(estimate_match.group(1)) if estimate_match else 5
             
-            # Extract status
-            status_match = re.search(r'\*\*Status\*\*: (.+?)(?:\n|\|)', content)
-            status = status_match.group(1).strip() if status_match else "Not Started"
+            # Extract status/current state
+            status = "Not Started"
+            status_patterns = [
+                r'\*\*Current State\*\*:\s*(.+?)(?:\n|\|)',
+                r'\*\*Status\*\*:\s*(.+?)(?:\n|\|)'
+            ]
+            for pattern in status_patterns:
+                status_match = re.search(pattern, content)
+                if status_match:
+                    status = status_match.group(1).strip()
+                    # Clean up status (remove emojis and extra formatting)
+                    status = re.sub(r'🚨|⚠️|📋|✅', '', status).strip()
+                    status = re.sub(r'\*\*', '', status).strip()
+                    break
             
-            # Extract dependencies
-            deps_match = re.search(r'\*\*Dependencies\*\*: (.+?)(?:\n|$)', content)
+            # Extract dependencies from **Dependencies**: line
             dependencies = []
+            deps_match = re.search(r'\*\*Dependencies\*\*:\s*(.+?)(?:\n|$)', content)
             if deps_match:
                 deps_text = deps_match.group(1)
-                dependencies = [dep.strip() for dep in deps_text.split(',') if dep.strip()]
+                if 'None' not in deps_text:
+                    dependencies = [dep.strip() for dep in deps_text.split(',') if dep.strip()]
             
             # Generate labels based on priority and content
-            labels = self._generate_labels(priority, title, content, status)
+            labels = self._generate_labels(priority, title, content, status, estimate)
+            
+            print_success(f"Successfully parsed {item_id}: {title[:50]}...")
             
             return BacklogItem(
                 id=item_id,
@@ -190,9 +253,10 @@ class BacklogParser:
             
         except Exception as e:
             print_warning(f"Failed to parse item {item_id}: {e}")
+            print_warning(f"Content preview: {content[:100]}...")
             return None
     
-    def _generate_labels(self, priority: str, title: str, content: str, status: str) -> List[str]:
+    def _generate_labels(self, priority: str, title: str, content: str, status: str, estimate: int) -> List[str]:
         """Generate appropriate GitHub labels for the issue"""
         labels = []
         
@@ -284,6 +348,10 @@ class GitHubIssueCreator:
     def _simulate_issue_creation(self, item: BacklogItem) -> Dict:
         """Simulate issue creation for dry run"""
         print_status(f"[DRY RUN] Would create: {item.id} - {item.title}")
+        print_status(f"  Priority: {item.priority} | Estimate: {item.estimate} points")
+        print_status(f"  Labels: {', '.join(item.labels)}")
+        if item.acceptance_criteria:
+            print_status(f"  Acceptance Criteria: {len(item.acceptance_criteria)} items")
         return {
             'id': item.id,
             'title': item.title,
@@ -296,28 +364,44 @@ class GitHubIssueCreator:
     
     def _create_issue(self, item: BacklogItem) -> Dict:
         """Create actual GitHub issue"""
-        # Format issue body
-        body = self._format_issue_body(item)
-        
-        # Create issue
-        issue = self.repo.create_issue(
-            title=f"[{item.id}] {item.title}",
-            body=body,
-            labels=item.labels,
-            assignee=item.assignee
-        )
-        
-        print_success(f"Created issue #{issue.number}: {item.title}")
-        
-        return {
-            'id': item.id,
-            'title': item.title,
-            'number': issue.number,
-            'url': issue.html_url,
-            'labels': item.labels,
-            'estimate': item.estimate,
-            'success': True
-        }
+        try:
+            # Format issue body
+            body = self._format_issue_body(item)
+            
+            print_status(f"Creating issue: [{item.id}] {item.title}")
+            print_status(f"  Labels: {item.labels}")
+            print_status(f"  Body length: {len(body)} characters")
+            
+            # Create issue with you as assignee
+            issue = self.repo.create_issue(
+                title=f"[{item.id}] {item.title}",
+                body=body,
+                labels=item.labels,
+                assignee="mediajunkie"  # Assign to you
+            )
+            
+            print_success(f"Created issue #{issue.number}: {item.title}")
+            
+            return {
+                'id': item.id,
+                'title': item.title,
+                'number': issue.number,
+                'url': issue.html_url,
+                'labels': item.labels,
+                'estimate': item.estimate,
+                'success': True
+            }
+            
+        except Exception as e:
+            print_error(f"Detailed error for {item.id}: {type(e).__name__}: {str(e)}")
+            import traceback
+            traceback.print_exc()
+            return {
+                'id': item.id,
+                'title': item.title,
+                'success': False,
+                'error': f"{type(e).__name__}: {str(e)}"
+            }
     
     def _format_issue_body(self, item: BacklogItem) -> str:
         """Format GitHub issue body from backlog item"""
@@ -433,7 +517,7 @@ def main():
         print(f"  Failed: {len([r for r in results if not r.get('success')])}")
         
         if args.dry_run:
-            print_warning("\nThis was a dry run. Use --no-dry-run to actually create issues.")
+            print_warning("\nThis was a dry run. Remove --dry-run to actually create issues.")
     
     except GithubException as e:
         print_error(f"GitHub API error: {e}")
