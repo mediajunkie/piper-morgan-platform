@@ -64,3 +64,19 @@ pytest --cov=services
 - **Add API endpoint**: Update `services/api/routes/`
 
 For detailed technical information, see [Technical Specification](../architecture/technical-spec.md).
+
+## Environment Variables Checklist
+
+When creating new services that need API keys or config:
+
+✅ **Always add `load_dotenv()` at the top of modules that use `os.getenv()`**
+✅ **Import pattern**: `from dotenv import load_dotenv; load_dotenv()`
+✅ **Place before any `os.getenv()` calls**
+✅ **Test with fresh terminal/environment to catch missing env loading**
+
+### Common Modules That Need This:
+- LLM clients (Claude, OpenAI)
+- Database connections
+- External API integrations
+- Knowledge/embedding services
+

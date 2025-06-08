@@ -3,11 +3,6 @@ Document ingestion for knowledge base with relationship analysis
 PM-007 Enhancement: Dynamic knowledge hierarchy and relationships
 """
 import os
-from dotenv import load_dotenv
-
-# Load environment variables
-load_dotenv()
-
 from typing import List, Dict, Optional
 from datetime import datetime
 import hashlib
@@ -127,30 +122,6 @@ Be specific and concise. Extract real concepts from the content."""
         # Extract text from PDF
         logger.info(f"Starting PDF ingestion with relationship analysis: {file_path}")
         chunks = self._extract_pdf_chunks(file_path)
-        
-        # NEW: Analyze first chunk for document-level relationships
-
-        
-        enhanced_metadata = metadata
-
-        
-        if chunks:
-
-        
-            logger.info("Analyzing document relationships...")
-
-        
-            enhanced_metadata = await self._analyze_document_relationships(
-
-        
-                chunks[0], metadata
-
-        
-            )
-
-        
-        
-
         
         # Generate document ID based on content hash
         doc_hash = hashlib.md5(open(file_path, 'rb').read()).hexdigest()[:8]
