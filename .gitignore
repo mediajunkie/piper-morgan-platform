@@ -1,3 +1,155 @@
+# Comprehensive .gitignore for API Security
+
+# ============================================
+# SECURITY - NEVER COMMIT THESE
+# ============================================
+# Environment variables and secrets
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+.env.staging
+*.env
+
+# API keys and credentials
+*api_key*
+*secret*
+*token*
+*password*
+credentials.json
+secrets.json
+config.json
+settings.json
+
+# SSH keys
+*.pem
+*.key
+id_rsa*
+id_ed25519*
+
+# ============================================
+# PYTHON
+# ============================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+.venv/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# PyCharm
+.idea/
+
+# ============================================
+# NODE.JS
+# ============================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.npm
+.eslintcache
+.yarn-integrity
+
+# ============================================
+# MACOS
+# ============================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# ============================================
+# MEDIA/CONTENT FILES (Large files)
+# ============================================
+# Video files
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.wmv
+*.flv
+
+# Audio files
+*.mp3
+*.wav
+*.flac
+*.aac
+
+# Image sequences/bulk images
+frames/
+keyframes/
+rendered/
+output/
+exports/
+temp_images/
+image_sequence/
+
+# Large data files
+*.zip
+*.tar.gz
+*.rar
+*.7z
+
+# ============================================
+# PROJECT-SPECIFIC ADDITIONS
+# ============================================
+# Add your specific patterns here
+# Example:
+# my_custom_config.json
+# temp_*
+# *_backup
+
+# ============================================
+# IDE AND EDITOR FILES
+# ============================================
+.vscode/settings.json
+.vscode/launch.json
+.vscode/extensions.json
+*.swp
+*.swo
+*~
+
+# ============================================
+# LOGS AND DATABASES
+# ============================================
+*.log
+*.sqlite
+*.db
+
+
+
 # Environment
 .env
 venv/

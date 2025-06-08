@@ -5,9 +5,7 @@ Coordinates multi-step workflows for PM tasks
 import asyncio
 from typing import Dict, Any, Optional, List
 from datetime import datetime
-import structlog
 
-from services.llm import llm_client
 from services.domain.models import Intent, IntentCategory
 from services.repositories import DatabasePool
 from services.repositories.workflow_repository import WorkflowRepository
