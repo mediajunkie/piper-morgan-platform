@@ -5,10 +5,10 @@ Coordinates multi-step workflows for PM tasks
 import asyncio
 from typing import Dict, Any, Optional, List
 from datetime import datetime
-import structlog
 
-from services.llm import llm_client
 from services.domain.models import Intent, IntentCategory
+from services.repositories import DatabasePool
+from services.repositories.workflow_repository import WorkflowRepository
 from services.database import RepositoryFactory
 from services.shared_types import WorkflowType, WorkflowStatus, TaskType, TaskStatus
 from .workflows import Workflow, WorkflowDefinition, WORKFLOW_DEFINITIONS
@@ -17,75 +17,17 @@ from .tasks import Task, TaskResult
 logger = structlog.get_logger()
 
 class OrchestrationEngine:
-    """
-    Main orchestration engine that executes workflows
-    """
-    
     def __init__(self):
-        self.workflows: Dict[str, Workflow] = {}
-        self.task_handlers: Dict[TaskType, Any] = {}
-        self._register_default_handlers()
-    
-    def _register_default_handlers(self):
-        """Register placeholder handlers for tasks"""
-        # Analysis tasks
-        self.task_handlers[TaskType.ANALYZE_REQUEST] = self._analyze_request
-        self.task_handlers[TaskType.EXTRACT_REQUIREMENTS] = self._extract_requirements
-        self.task_handlers[TaskType.IDENTIFY_DEPENDENCIES] = self._identify_dependencies
-        
-        # Execution tasks
-        self.task_handlers[TaskType.CREATE_WORK_ITEM] = self._create_work_item
-        self.task_handlers[TaskType.NOTIFY_STAKEHOLDERS] = self._notify_stakeholders
-        
-        # For now, integration tasks just log
-        self.task_handlers[TaskType.GITHUB_CREATE_ISSUE] = self._placeholder_handler
-        self.task_handlers[TaskType.JIRA_CREATE_TICKET] = self._placeholder_handler
-        self.task_handlers[TaskType.SLACK_SEND_MESSAGE] = self._placeholder_handler
-    
+        self.workflows = {}
+        from .workflow_factory import WorkflowFactory
+        self.factory = WorkflowFactory()
+
     async def create_workflow_from_intent(self, intent: Intent) -> Optional[Workflow]:
-        """
-        Create appropriate workflow based on intent
-        """
-        # Map intent to workflow type
-        workflow_type = self._map_intent_to_workflow(intent)
-        if not workflow_type:
-            return None
-        
-        # Get workflow definition
-        definition = WORKFLOW_DEFINITIONS.get(workflow_type)
-        if not definition:
-            return None
-        
-        # Create workflow instance
-        workflow = definition.create_instance(intent.context)
-        self.workflows[workflow.id] = workflow
-        
-        # Persist to database
-        repos = await RepositoryFactory.get_repositories()
-        try:
-            # Save workflow
-            db_workflow = await repos["workflows"].create_from_domain(workflow)
-            
-            # Save all tasks
-            for task in workflow.tasks:
-                await repos["tasks"].create_from_domain(workflow.id, task)
-            
-            await repos["session"].commit()
-            
-            logger.info(
-                "Workflow created and persisted",
-                workflow_id=workflow.id,
-                workflow_type=workflow_type.value,
-                task_count=len(workflow.tasks)
-            )
-            
-        except Exception as e:
-            await repos["session"].rollback()
-            logger.error("Failed to persist workflow", error=str(e))
-            raise
-        finally:
-            await repos["session"].close()
-        
+        """Create appropriate workflow based on intent with database persistence"""
+    # ... new implementation ...
+        workflow = await self.factory.create_from_intent(intent)
+        if workflow:
+            self.workflows[workflow.id] = workflow
         return workflow
     
 # Replace the _map_intent_to_workflow method in services/orchestration/engine.py

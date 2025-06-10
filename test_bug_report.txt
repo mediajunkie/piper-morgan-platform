@@ -1,0 +1,1 @@
+This is a bug report about mobile login authentication failing for iOS users when they try to sign in with Face ID.
