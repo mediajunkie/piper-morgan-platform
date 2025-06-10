@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Piper Morgan: An AI Exploration for Product Management</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            overflow: hidden;
+        }
+        
+        .slideshow-container {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .slide {
+            display: none;
+            width: 90%;
+            max-width: 1200px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 60px;
+            text-align: center;
+            animation: slideIn 0.5s ease-in-out;
+        }
+        
+        .slide.active {
+            display: block;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        h1 {
+            color: #4a4a4a;
+            font-size: 2.8em;
+            margin-bottom: 20px;
+        }
+        
+        h2 {
+            color: #667eea;
+            font-size: 2.2em;
+            margin-bottom: 20px;
+        }
+
+        h3 {
+            color: #764ba2;
+            font-size: 1.8em;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+        
+        p {
+            font-size: 1.3em;
+            line-height: 1.6;
+            color: #555;
+            margin-bottom: 15px;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+            margin: 20px auto;
+            max-width: 800px;
+            text-align: left;
+        }
+
+        ul li {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+            color: #444;
+            position: relative;
+            padding-left: 30px;
+        }
+
+        ul li:before {
+            content: '•';
+            color: #667eea;
+            position: absolute;
+            left: 0;
+            font-size: 1.5em;
+            line-height: 1;
+        }
+        
+        .highlight {
+            color: #764ba2;
+            font-weight: bold;
+        }
+
+        .cta {
+            background-color: #667eea;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 30px;
+            font-size: 1.4em;
+            font-weight: bold;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+
+        .cta:hover {
+            background-color: #5a6cd0;
+        }
+
+        .navigation {
+            position: absolute;
+            bottom: 30px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .nav-btn {
+            background-color: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            margin: 0 10px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: background-color 0.3s ease;
+        }
+
+        .nav-btn:hover {
+            background-color: rgba(255, 255, 255, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="slideshow-container">
+        <div class="slide active">
+            <h1>Piper Morgan: An AI Exploration for Product Management</h1>
+            <p>A personal project to experiment with LLMs for product tasks</p>
+            <p style="font-size: 1.1em; color: #7f8c8d; margin-top: 40px;">Christian Crumlish</p>
+        </div>
+
+        <div class="slide">
+            <h2>The Idea Behind Piper Morgan</h2>
+            <p>As the new Product Director, I wanted to explore how LLMs could help streamline routine PM tasks and learn about our unique product context.</p>
+            <p>My goal: build a "product trainee" service to act as an intern, potentially growing into an entry-level Product Assistant.</p>
+        </div>
+
+        <div class="slide">
+            <h2>Our Iterative Journey So Far</h2>
+            <p>This has been a learning journey, iterating through several distinct sessions:</p>
+            <ul>
+                <li><span class="highlight">Initial Experiment:</span> Proof-of-concept with OpenAI, answering questions from hard-coded synthetic documents.</li>
+                <li><span class="highlight">Functional Iteration:</span> Migrated to Claude Opus, integrated with the Claude API, and developed core capabilities.</li>
+                <li><span class="highlight">Current Prototype:</span> "Piper Morgan" can now ingest content, turn plain language into GitHub tickets, and propose revisions for existing tickets.</li>
+            </ul>
+        </div>
+
+        <div class="slide">
+            <h2>What Piper Morgan Can Do (Today's Prototype)</h2>
+            <p>It's an early-stage prototype, but it can already:</p>
+            <ul>
+                <li><span class="highlight">Interpret Natural Language:</span> Understand plain language requests for product tasks.</li>
+                <li><span class="highlight">Draft GitHub Tickets:</span> Convert natural language into structured GitHub issues.</li>
+                <li><span class="highlight">Suggest Ticket Revisions:</span> Offer comments and proposed edits on existing GitHub issues.</li>
+                <li><span class="highlight">Ingest Context:</span> Process and use provided content and categories.</li>
+            </ul>
+            <p>This is a foundational step, not a fully-fledged product yet.</p>
+        </div>
+
+        <div class="slide">
+            <h2>Why This Exploration Matters</h2>
+            <p>Even as a prototype, Piper Morgan hints at significant potential:</p>
+            <ul>
+                <li><span class="highlight">Efficiency:</span> Streamlining routine documentation tasks for PMs.</li>
+                <li><span class="highlight">Consistency:</span> Helping maintain quality and format across tickets.</li>
+                <li><span class="highlight">Onboarding Aid:</span> A potential tool for junior team members to learn best practices.</li>
+                <li><span class="highlight">Knowledge Leverage:</span> Making internal documentation more accessible and actionable.</li>
+            </ul>
+            <p>It's about amplifying our human capabilities, not replacing them.</p>
+        </div>
+
+        <div class="slide">
+            <h2>Looking Ahead & Open Questions</h2>
+            <p>This is just the beginning. The current prototype has clear limitations:</p>
+            <ul>
+                <li>It's a <span class="highlight">local setup, not a shared service</span>.</li>
+                <li>Learning from user edits is <span class="highlight">still basic</span>.</li>
+                <li>Further development is needed for <span class="highlight">robustness and broader adoption</span>.</li>
+            </ul>
+            <p>I'm excited to share this work and gather your feedback as we consider future iterations.</p>
+        </div>
+
+        <div class="slide">
+            <h2>Let's Discuss!</h2>
+            <p>I'm eager to hear your thoughts, suggestions, and perspectives.</p>
+            <p>How do you see tools like this fitting into our workflow at Kind?</p>
+            <p>What are the most interesting or challenging aspects from an engineering perspective?</p>
+            
+            <div class="cta" style="display: inline-block; margin-top: 40px;">
+                I welcome your questions and ideas!
+            </div>
+            
+            <p style="font-size: 1.1em; color: #7f8c8d; margin-top: 40px;">
+                Thanks! • Christian Crumlish • @xian
+            </p>
+        </div>
+    </div>
+
+    <div class="navigation">
+        <button class="nav-btn" onclick="changeSlide(-1)">← Previous</button>
+        <button class="nav-btn" onclick="changeSlide(1)">Next →</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (n + totalSlides) % totalSlides;
+            slides[currentSlide].classList.add('active');
+        }
+
+        function changeSlide(direction) {
+            showSlide(currentSlide + direction);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowLeft') changeSlide(-1);
+            if (e.key === 'ArrowRight') changeSlide(1);
+            if (e.key === ' ') {
+                e.preventDefault();
+                changeSlide(1);
+            }
+        });
+
+        // Initial slide display
+        showSlide(0);
+    </script>
+</body>
+</html>

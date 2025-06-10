@@ -1,0 +1,2 @@
+[server]
+fileWatcherType = "none" # Disables auto-reload, you'll need to restart Streamlit manually

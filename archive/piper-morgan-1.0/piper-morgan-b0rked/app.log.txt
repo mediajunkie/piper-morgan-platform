@@ -1,0 +1,486 @@
+2025-05-31 00:13:35,439 - pm_agent_app - INFO - Logging configured successfully.
+2025-05-31 00:13:36,096 - pm_agent_app - INFO - ✅ Connected to GitHub as: mediajunkie
+2025-05-31 00:13:36,101 - pm_agent_app - INFO - Anthropic client initialized.
+2025-05-31 00:13:36,101 - pm_agent_app - INFO - ClaudeClient initialized with model: claude-sonnet-4-20250514
+2025-05-31 00:13:36,101 - pm_agent_app - INFO - ✅ ClaudeClient initialized with model: claude-sonnet-4-20250514
+2025-05-31 00:13:44,456 - pm_agent_app - INFO - ✅ KnowledgeBase connected to collection: 'pm_knowledge_base' in 'pm_kb_docs'
+2025-05-31 00:13:44,461 - pm_agent_app - INFO - Current document count: 4
+2025-05-31 00:13:44,461 - pm_agent_app - INFO - ✅ PMAgent initialized successfully.
+2025-05-31 00:13:44,461 - pm_agent_app - INFO - ✅ GitHubReviewer initialized, using GitHubAgent.
+2025-05-31 00:13:44,461 - pm_agent_app - INFO - Knowledge base already contains 4 documents.
+2025-05-31 00:13:44,461 - pm_agent_app - INFO - 
+--- Processing User Query: 'I need a new feature for the user profile page. Add a dark mode toggle. This is for the Piper Morgan project.' ---
+2025-05-31 00:13:44,461 - pm_agent_app - INFO - Querying Claude for structured response (model: claude-sonnet-4-20250514).
+2025-05-31 00:13:44,462 - pm_agent_app - DEBUG - Prompt: I need a new feature for the user profile page. Add a dark mode toggle. This is for the Piper Morgan project....
+2025-05-31 00:13:44,462 - pm_agent_app - DEBUG - Context added to system message: Context: 
+        You are an AI assistant designed to understand user intent related to GitHub operations.
+        Strictly categorize the user's request into one of the following intents:
+        - '...
+2025-05-31 00:13:44,462 - pm_agent_app - DEBUG - Structured Query - Model: claude-sonnet-4-20250514
+2025-05-31 00:13:44,462 - pm_agent_app - DEBUG - Structured Query - System payload: Context: 
+        You are an AI assistant designed to understand user intent related to GitHub operations.
+        Strictly categorize the user's request into one of the following intents:
+        - '...
+2025-05-31 00:13:44,462 - pm_agent_app - DEBUG - Structured Query - Messages payload: [
+  {
+    "role": "user",
+    "content": "I need a new feature for the user profile page. Add a dark mode toggle. This is for the Piper Morgan project.\n\nThe response *must* be a JSON object matching this structure:\n```json\n{\n  \"intent\": \"create_issue|review_issue|get_issue_status|unknown\",\n  \"repo_name\": \"string (e.g., 'owner/repo')\",\n  \"issue_number\": \"integer (optional, for review/status)\",\n  \"user_request_description\": \"string (detailed description for issue creation/review)\"\n}\n```"
+  }
+]
+2025-05-31 00:13:44,462 - pm_agent_app - DEBUG - Structured Query - Max tokens: 4000
+2025-05-31 00:13:44,462 - pm_agent_app - DEBUG - Structured Query - Temperature: 0.0
+2025-05-31 00:13:47,437 - pm_agent_app - DEBUG - Raw LLM structured response: ```json
+{
+  "intent": "create_issue",
+  "repo_name": "mediajunkie/piper-morgan",
+  "user_request_description": "Add a dark mode toggle feature to the user profile page for the Piper Morgan project"
+}
+...
+2025-05-31 00:13:47,437 - pm_agent_app - INFO - Claude structured query successful, JSON parsed.
+2025-05-31 00:13:47,437 - pm_agent_app - INFO - 📝 Recognized Intent: create_issue
+2025-05-31 00:13:47,438 - pm_agent_app - INFO - 📁 Target Repo: mediajunkie/test-piper-morgan
+2025-05-31 00:13:47,438 - pm_agent_app - INFO - 💬 Description: Add a dark mode toggle feature to the user profile page for the Piper Morgan project
+2025-05-31 00:13:47,438 - pm_agent_app - INFO - 
+--- Processing User Query: 'Can you review issue #123 in mediajunkie/test-piper-morgan? Check the acceptance criteria.' ---
+2025-05-31 00:13:47,438 - pm_agent_app - INFO - Querying Claude for structured response (model: claude-sonnet-4-20250514).
+2025-05-31 00:13:47,438 - pm_agent_app - DEBUG - Prompt: Can you review issue #123 in mediajunkie/test-piper-morgan? Check the acceptance criteria....
+2025-05-31 00:13:47,438 - pm_agent_app - DEBUG - Context added to system message: Context: 
+        You are an AI assistant designed to understand user intent related to GitHub operations.
+        Strictly categorize the user's request into one of the following intents:
+        - '...
+2025-05-31 00:13:47,439 - pm_agent_app - DEBUG - Structured Query - Model: claude-sonnet-4-20250514
+2025-05-31 00:13:47,439 - pm_agent_app - DEBUG - Structured Query - System payload: Context: 
+        You are an AI assistant designed to understand user intent related to GitHub operations.
+        Strictly categorize the user's request into one of the following intents:
+        - '...
+2025-05-31 00:13:47,439 - pm_agent_app - DEBUG - Structured Query - Messages payload: [
+  {
+    "role": "user",
+    "content": "Can you review issue #123 in mediajunkie/test-piper-morgan? Check the acceptance criteria.\n\nThe response *must* be a JSON object matching this structure:\n```json\n{\n  \"intent\": \"create_issue|review_issue|get_issue_status|unknown\",\n  \"repo_name\": \"string (e.g., 'owner/repo')\",\n  \"issue_number\": \"integer (optional, for review/status)\",\n  \"user_request_description\": \"string (detailed description for issue creation/review)\"\n}\n```"
+  }
+]
+2025-05-31 00:13:47,440 - pm_agent_app - DEBUG - Structured Query - Max tokens: 4000
+2025-05-31 00:13:47,440 - pm_agent_app - DEBUG - Structured Query - Temperature: 0.0
+2025-05-31 00:13:50,052 - pm_agent_app - DEBUG - Raw LLM structured response: ```json
+{
+  "intent": "review_issue",
+  "repo_name": "mediajunkie/test-piper-morgan",
+  "issue_number": 123,
+  "user_request_description": "Review issue #123 in mediajunkie/test-piper-morgan repositor...
+2025-05-31 00:13:50,052 - pm_agent_app - INFO - Claude structured query successful, JSON parsed.
+2025-05-31 00:13:50,053 - pm_agent_app - INFO - 📝 Recognized Intent: review_issue
+2025-05-31 00:13:50,053 - pm_agent_app - INFO - 📁 Target Repo: mediajunkie/test-piper-morgan
+2025-05-31 00:13:50,053 - pm_agent_app - INFO - 🔢 Issue Number: 123
+2025-05-31 00:13:50,053 - pm_agent_app - INFO - 💬 Description: Review issue #123 in mediajunkie/test-piper-morgan repository and check the acceptance criteria
+2025-05-31 00:13:50,053 - pm_agent_app - INFO - 
+--- Reviewing issue #123 in repo 'mediajunkie/test-piper-morgan' ---
+2025-05-31 00:13:50,053 - pm_agent_app - INFO - Review Instructions: 'Review issue #123 in mediajunkie/test-piper-morgan repository and check the acceptance criteria'
+2025-05-31 00:13:51,141 - pm_agent_app - ERROR - ❌ GitHub API Error during intent processing: GitHub issue #123 not found in 'mediajunkie/test-piper-morgan': 404 {"message": "Not Found", "documentation_url": "https://docs.github.com/rest/issues/issues#get-an-issue", "status": "404"}
+2025-05-31 00:13:51,142 - pm_agent_app - INFO - 
+--- Processing User Query: 'What's the status of issue #1 in mediajunkie/test-piper-morgan?' ---
+2025-05-31 00:13:51,142 - pm_agent_app - INFO - Querying Claude for structured response (model: claude-sonnet-4-20250514).
+2025-05-31 00:13:51,142 - pm_agent_app - DEBUG - Prompt: What's the status of issue #1 in mediajunkie/test-piper-morgan?...
+2025-05-31 00:13:51,142 - pm_agent_app - DEBUG - Context added to system message: Context: 
+        You are an AI assistant designed to understand user intent related to GitHub operations.
+        Strictly categorize the user's request into one of the following intents:
+        - '...
+2025-05-31 00:13:51,142 - pm_agent_app - DEBUG - Structured Query - Model: claude-sonnet-4-20250514
+2025-05-31 00:13:51,142 - pm_agent_app - DEBUG - Structured Query - System payload: Context: 
+        You are an AI assistant designed to understand user intent related to GitHub operations.
+        Strictly categorize the user's request into one of the following intents:
+        - '...
+2025-05-31 00:13:51,142 - pm_agent_app - DEBUG - Structured Query - Messages payload: [
+  {
+    "role": "user",
+    "content": "What's the status of issue #1 in mediajunkie/test-piper-morgan?\n\nThe response *must* be a JSON object matching this structure:\n```json\n{\n  \"intent\": \"create_issue|review_issue|get_issue_status|unknown\",\n  \"repo_name\": \"string (e.g., 'owner/repo')\",\n  \"issue_number\": \"integer (optional, for review/status)\",\n  \"user_request_description\": \"string (detailed description for issue creation/review)\"\n}\n```"
+  }
+]
+2025-05-31 00:13:51,142 - pm_agent_app - DEBUG - Structured Query - Max tokens: 4000
+2025-05-31 00:13:51,142 - pm_agent_app - DEBUG - Structured Query - Temperature: 0.0
+2025-05-31 00:13:53,921 - pm_agent_app - DEBUG - Raw LLM structured response: {
+  "intent": "get_issue_status",
+  "repo_name": "mediajunkie/test-piper-morgan",
+  "issue_number": 1,
+  "user_request_description": "User wants to check the current status of issue #1 in the mediajun...
+2025-05-31 00:13:53,922 - pm_agent_app - INFO - Claude structured query successful, JSON parsed.
+2025-05-31 00:13:53,922 - pm_agent_app - INFO - 📝 Recognized Intent: get_issue_status
+2025-05-31 00:13:53,922 - pm_agent_app - INFO - 📁 Target Repo: mediajunkie/test-piper-morgan
+2025-05-31 00:13:53,923 - pm_agent_app - INFO - 🔢 Issue Number: 1
+2025-05-31 00:13:53,923 - pm_agent_app - INFO - 💬 Description: User wants to check the current status of issue #1 in the mediajunkie/test-piper-morgan repository
+2025-05-31 00:13:53,923 - pm_agent_app - INFO - 
+--- Getting status for issue #1 in repo 'mediajunkie/test-piper-morgan' ---
+2025-05-31 00:13:54,975 - pm_agent_app - ERROR - ❌ GitHub API Error during intent processing: GitHub issue #1 not found in 'mediajunkie/test-piper-morgan': 404 {"message": "Not Found", "documentation_url": "https://docs.github.com/rest/issues/issues#get-an-issue", "status": "404"}
+2025-05-31 00:13:54,975 - pm_agent_app - INFO - 
+--- Processing User Query: 'Tell me a joke about a developer and a product manager.' ---
+2025-05-31 00:13:54,975 - pm_agent_app - INFO - Querying Claude for structured response (model: claude-sonnet-4-20250514).
+2025-05-31 00:13:54,976 - pm_agent_app - DEBUG - Prompt: Tell me a joke about a developer and a product manager....
+2025-05-31 00:13:54,976 - pm_agent_app - DEBUG - Context added to system message: Context: 
+        You are an AI assistant designed to understand user intent related to GitHub operations.
+        Strictly categorize the user's request into one of the following intents:
+        - '...
+2025-05-31 00:13:54,976 - pm_agent_app - DEBUG - Structured Query - Model: claude-sonnet-4-20250514
+2025-05-31 00:13:54,976 - pm_agent_app - DEBUG - Structured Query - System payload: Context: 
+        You are an AI assistant designed to understand user intent related to GitHub operations.
+        Strictly categorize the user's request into one of the following intents:
+        - '...
+2025-05-31 00:13:54,976 - pm_agent_app - DEBUG - Structured Query - Messages payload: [
+  {
+    "role": "user",
+    "content": "Tell me a joke about a developer and a product manager.\n\nThe response *must* be a JSON object matching this structure:\n```json\n{\n  \"intent\": \"create_issue|review_issue|get_issue_status|unknown\",\n  \"repo_name\": \"string (e.g., 'owner/repo')\",\n  \"issue_number\": \"integer (optional, for review/status)\",\n  \"user_request_description\": \"string (detailed description for issue creation/review)\"\n}\n```"
+  }
+]
+2025-05-31 00:13:54,976 - pm_agent_app - DEBUG - Structured Query - Max tokens: 4000
+2025-05-31 00:13:54,976 - pm_agent_app - DEBUG - Structured Query - Temperature: 0.0
+2025-05-31 00:13:57,597 - pm_agent_app - DEBUG - Raw LLM structured response: ```json
+{
+  "intent": "unknown",
+  "repo_name": "",
+  "issue_number": null,
+  "user_request_description": "User is requesting a joke about a developer and a product manager, which is not related to Gi...
+2025-05-31 00:13:57,598 - pm_agent_app - INFO - Claude structured query successful, JSON parsed.
+2025-05-31 00:13:57,598 - pm_agent_app - INFO - 📝 Recognized Intent: unknown
+2025-05-31 00:13:57,598 - pm_agent_app - INFO - 📁 Target Repo: mediajunkie/test-def
+2025-05-31 00:13:57,599 - pm_agent_app - INFO - 💬 Description: User is requesting a joke about a developer and a product manager, which is not related to GitHub operations
+2025-05-31 00:13:57,599 - pm_agent_app - WARNING - 🤷‍♂️ Intent is unknown. Please rephrase your request: 'Tell me a joke about a developer and a product manager.'
+2025-05-31 00:14:58,512 - pm_agent_app - INFO - Logging configured successfully.
+2025-05-31 00:15:02,140 - pm_agent_app - INFO - ✅ Connected to GitHub as: mediajunkie
+2025-05-31 00:15:02,150 - pm_agent_app - INFO - Anthropic client initialized.
+2025-05-31 00:15:02,150 - pm_agent_app - INFO - ClaudeClient initialized with model: claude-sonnet-4-20250514
+2025-05-31 00:15:02,151 - pm_agent_app - INFO - ✅ ClaudeClient initialized with model: claude-sonnet-4-20250514
+2025-05-31 00:15:27,891 - pm_agent_app - INFO - ✅ KnowledgeBase connected to collection: 'pm_knowledge_base' in 'pm_kb_docs'
+2025-05-31 00:15:27,896 - pm_agent_app - INFO - Current document count: 4
+2025-05-31 00:15:27,897 - pm_agent_app - INFO - ✅ PMAgent initialized successfully.
+2025-05-31 00:15:27,897 - pm_agent_app - INFO - ✅ GitHubReviewer initialized, using GitHubAgent.
+2025-05-31 00:15:27,897 - pm_agent_app - INFO - Knowledge base already contains 4 documents.
+2025-05-31 00:15:27,897 - pm_agent_app - INFO - 
+--- Processing User Query: 'I need a new feature for the user profile page. Add a dark mode toggle. This is for the Piper Morgan project.' ---
+2025-05-31 00:15:27,897 - pm_agent_app - INFO - Querying Claude for structured response (model: claude-sonnet-4-20250514).
+2025-05-31 00:15:27,897 - pm_agent_app - DEBUG - Prompt: I need a new feature for the user profile page. Add a dark mode toggle. This is for the Piper Morgan project....
+2025-05-31 00:15:27,897 - pm_agent_app - DEBUG - Context added to system message: Context: 
+        You are an AI assistant designed to understand user intent related to GitHub operations.
+        Strictly categorize the user's request into one of the following intents:
+        - '...
+2025-05-31 00:15:27,897 - pm_agent_app - DEBUG - Structured Query - Model: claude-sonnet-4-20250514
+2025-05-31 00:15:27,897 - pm_agent_app - DEBUG - Structured Query - System payload: Context: 
+        You are an AI assistant designed to understand user intent related to GitHub operations.
+        Strictly categorize the user's request into one of the following intents:
+        - '...
+2025-05-31 00:15:27,897 - pm_agent_app - DEBUG - Structured Query - Messages payload: [
+  {
+    "role": "user",
+    "content": "I need a new feature for the user profile page. Add a dark mode toggle. This is for the Piper Morgan project.\n\nThe response *must* be a JSON object matching this structure:\n```json\n{\n  \"intent\": \"create_issue|review_issue|get_issue_status|unknown\",\n  \"repo_name\": \"string (e.g., 'owner/repo')\",\n  \"issue_number\": \"integer (optional, for review/status)\",\n  \"user_request_description\": \"string (detailed description for issue creation/review)\"\n}\n```"
+  }
+]
+2025-05-31 00:15:27,897 - pm_agent_app - DEBUG - Structured Query - Max tokens: 4000
+2025-05-31 00:15:27,897 - pm_agent_app - DEBUG - Structured Query - Temperature: 0.0
+2025-05-31 00:15:30,106 - pm_agent_app - DEBUG - Raw LLM structured response: ```json
+{
+  "intent": "create_issue",
+  "repo_name": "mediajunkie/piper-morgan",
+  "user_request_description": "Add a dark mode toggle feature to the user profile page for the Piper Morgan project"
+}
+...
+2025-05-31 00:15:30,106 - pm_agent_app - INFO - Claude structured query successful, JSON parsed.
+2025-05-31 00:15:30,106 - pm_agent_app - INFO - 📝 Recognized Intent: create_issue
+2025-05-31 00:15:30,107 - pm_agent_app - INFO - 📁 Target Repo: mediajunkie/test-piper-morgan
+2025-05-31 00:15:30,107 - pm_agent_app - INFO - 💬 Description: Add a dark mode toggle feature to the user profile page for the Piper Morgan project
+2025-05-31 00:15:30,107 - pm_agent_app - INFO - 
+--- Processing User Query: 'Can you review issue #123 in mediajunkie/test-piper-morgan? Check the acceptance criteria.' ---
+2025-05-31 00:15:30,107 - pm_agent_app - INFO - Querying Claude for structured response (model: claude-sonnet-4-20250514).
+2025-05-31 00:15:30,107 - pm_agent_app - DEBUG - Prompt: Can you review issue #123 in mediajunkie/test-piper-morgan? Check the acceptance criteria....
+2025-05-31 00:15:30,107 - pm_agent_app - DEBUG - Context added to system message: Context: 
+        You are an AI assistant designed to understand user intent related to GitHub operations.
+        Strictly categorize the user's request into one of the following intents:
+        - '...
+2025-05-31 00:15:30,107 - pm_agent_app - DEBUG - Structured Query - Model: claude-sonnet-4-20250514
+2025-05-31 00:15:30,108 - pm_agent_app - DEBUG - Structured Query - System payload: Context: 
+        You are an AI assistant designed to understand user intent related to GitHub operations.
+        Strictly categorize the user's request into one of the following intents:
+        - '...
+2025-05-31 00:15:30,108 - pm_agent_app - DEBUG - Structured Query - Messages payload: [
+  {
+    "role": "user",
+    "content": "Can you review issue #123 in mediajunkie/test-piper-morgan? Check the acceptance criteria.\n\nThe response *must* be a JSON object matching this structure:\n```json\n{\n  \"intent\": \"create_issue|review_issue|get_issue_status|unknown\",\n  \"repo_name\": \"string (e.g., 'owner/repo')\",\n  \"issue_number\": \"integer (optional, for review/status)\",\n  \"user_request_description\": \"string (detailed description for issue creation/review)\"\n}\n```"
+  }
+]
+2025-05-31 00:15:30,108 - pm_agent_app - DEBUG - Structured Query - Max tokens: 4000
+2025-05-31 00:15:30,108 - pm_agent_app - DEBUG - Structured Query - Temperature: 0.0
+2025-05-31 00:15:32,557 - pm_agent_app - DEBUG - Raw LLM structured response: ```json
+{
+  "intent": "review_issue",
+  "repo_name": "mediajunkie/test-piper-morgan",
+  "issue_number": 123,
+  "user_request_description": "Review issue #123 in mediajunkie/test-piper-morgan repositor...
+2025-05-31 00:15:32,558 - pm_agent_app - INFO - Claude structured query successful, JSON parsed.
+2025-05-31 00:15:32,558 - pm_agent_app - INFO - 📝 Recognized Intent: review_issue
+2025-05-31 00:15:32,558 - pm_agent_app - INFO - 📁 Target Repo: mediajunkie/test-piper-morgan
+2025-05-31 00:15:32,558 - pm_agent_app - INFO - 🔢 Issue Number: 123
+2025-05-31 00:15:32,558 - pm_agent_app - INFO - 💬 Description: Review issue #123 in mediajunkie/test-piper-morgan repository and check the acceptance criteria
+2025-05-31 00:15:32,558 - pm_agent_app - INFO - 
+--- Reviewing issue #123 in repo 'mediajunkie/test-piper-morgan' ---
+2025-05-31 00:15:32,558 - pm_agent_app - INFO - Review Instructions: 'Review issue #123 in mediajunkie/test-piper-morgan repository and check the acceptance criteria'
+2025-05-31 00:15:33,383 - pm_agent_app - ERROR - ❌ GitHub API Error during intent processing: GitHub issue #123 not found in 'mediajunkie/test-piper-morgan': 404 {"message": "Not Found", "documentation_url": "https://docs.github.com/rest/issues/issues#get-an-issue", "status": "404"}
+2025-05-31 00:15:33,384 - pm_agent_app - INFO - 
+--- Processing User Query: 'What's the status of issue #1 in mediajunkie/test-piper-morgan?' ---
+2025-05-31 00:15:33,384 - pm_agent_app - INFO - Querying Claude for structured response (model: claude-sonnet-4-20250514).
+2025-05-31 00:15:33,384 - pm_agent_app - DEBUG - Prompt: What's the status of issue #1 in mediajunkie/test-piper-morgan?...
+2025-05-31 00:15:33,384 - pm_agent_app - DEBUG - Context added to system message: Context: 
+        You are an AI assistant designed to understand user intent related to GitHub operations.
+        Strictly categorize the user's request into one of the following intents:
+        - '...
+2025-05-31 00:15:33,384 - pm_agent_app - DEBUG - Structured Query - Model: claude-sonnet-4-20250514
+2025-05-31 00:15:33,384 - pm_agent_app - DEBUG - Structured Query - System payload: Context: 
+        You are an AI assistant designed to understand user intent related to GitHub operations.
+        Strictly categorize the user's request into one of the following intents:
+        - '...
+2025-05-31 00:15:33,384 - pm_agent_app - DEBUG - Structured Query - Messages payload: [
+  {
+    "role": "user",
+    "content": "What's the status of issue #1 in mediajunkie/test-piper-morgan?\n\nThe response *must* be a JSON object matching this structure:\n```json\n{\n  \"intent\": \"create_issue|review_issue|get_issue_status|unknown\",\n  \"repo_name\": \"string (e.g., 'owner/repo')\",\n  \"issue_number\": \"integer (optional, for review/status)\",\n  \"user_request_description\": \"string (detailed description for issue creation/review)\"\n}\n```"
+  }
+]
+2025-05-31 00:15:33,384 - pm_agent_app - DEBUG - Structured Query - Max tokens: 4000
+2025-05-31 00:15:33,384 - pm_agent_app - DEBUG - Structured Query - Temperature: 0.0
+2025-05-31 00:15:35,967 - pm_agent_app - DEBUG - Raw LLM structured response: {
+  "intent": "get_issue_status",
+  "repo_name": "mediajunkie/test-piper-morgan",
+  "issue_number": 1,
+  "user_request_description": "User wants to check the current status of issue #1 in the mediajun...
+2025-05-31 00:15:35,968 - pm_agent_app - INFO - Claude structured query successful, JSON parsed.
+2025-05-31 00:15:35,968 - pm_agent_app - INFO - 📝 Recognized Intent: get_issue_status
+2025-05-31 00:15:35,968 - pm_agent_app - INFO - 📁 Target Repo: mediajunkie/test-piper-morgan
+2025-05-31 00:15:35,968 - pm_agent_app - INFO - 🔢 Issue Number: 1
+2025-05-31 00:15:35,968 - pm_agent_app - INFO - 💬 Description: User wants to check the current status of issue #1 in the mediajunkie/test-piper-morgan repository
+2025-05-31 00:15:35,968 - pm_agent_app - INFO - 
+--- Getting status for issue #1 in repo 'mediajunkie/test-piper-morgan' ---
+2025-05-31 00:15:36,774 - pm_agent_app - ERROR - ❌ GitHub API Error during intent processing: GitHub issue #1 not found in 'mediajunkie/test-piper-morgan': 404 {"message": "Not Found", "documentation_url": "https://docs.github.com/rest/issues/issues#get-an-issue", "status": "404"}
+2025-05-31 00:15:36,774 - pm_agent_app - INFO - 
+--- Processing User Query: 'Tell me a joke about a developer and a product manager.' ---
+2025-05-31 00:15:36,774 - pm_agent_app - INFO - Querying Claude for structured response (model: claude-sonnet-4-20250514).
+2025-05-31 00:15:36,775 - pm_agent_app - DEBUG - Prompt: Tell me a joke about a developer and a product manager....
+2025-05-31 00:15:36,775 - pm_agent_app - DEBUG - Context added to system message: Context: 
+        You are an AI assistant designed to understand user intent related to GitHub operations.
+        Strictly categorize the user's request into one of the following intents:
+        - '...
+2025-05-31 00:15:36,775 - pm_agent_app - DEBUG - Structured Query - Model: claude-sonnet-4-20250514
+2025-05-31 00:15:36,775 - pm_agent_app - DEBUG - Structured Query - System payload: Context: 
+        You are an AI assistant designed to understand user intent related to GitHub operations.
+        Strictly categorize the user's request into one of the following intents:
+        - '...
+2025-05-31 00:15:36,775 - pm_agent_app - DEBUG - Structured Query - Messages payload: [
+  {
+    "role": "user",
+    "content": "Tell me a joke about a developer and a product manager.\n\nThe response *must* be a JSON object matching this structure:\n```json\n{\n  \"intent\": \"create_issue|review_issue|get_issue_status|unknown\",\n  \"repo_name\": \"string (e.g., 'owner/repo')\",\n  \"issue_number\": \"integer (optional, for review/status)\",\n  \"user_request_description\": \"string (detailed description for issue creation/review)\"\n}\n```"
+  }
+]
+2025-05-31 00:15:36,775 - pm_agent_app - DEBUG - Structured Query - Max tokens: 4000
+2025-05-31 00:15:36,775 - pm_agent_app - DEBUG - Structured Query - Temperature: 0.0
+2025-05-31 00:15:39,224 - pm_agent_app - DEBUG - Raw LLM structured response: ```json
+{
+  "intent": "unknown",
+  "repo_name": "",
+  "issue_number": null,
+  "user_request_description": "User is requesting a joke about a developer and a product manager, which is not related to Gi...
+2025-05-31 00:15:39,227 - pm_agent_app - INFO - Claude structured query successful, JSON parsed.
+2025-05-31 00:15:39,228 - pm_agent_app - INFO - 📝 Recognized Intent: unknown
+2025-05-31 00:15:39,228 - pm_agent_app - INFO - 📁 Target Repo: mediajunkie/test-def
+2025-05-31 00:15:39,228 - pm_agent_app - INFO - 💬 Description: User is requesting a joke about a developer and a product manager, which is not related to GitHub operations
+2025-05-31 00:15:39,229 - pm_agent_app - WARNING - 🤷‍♂️ Intent is unknown. Please rephrase your request: 'Tell me a joke about a developer and a product manager.'
+2025-05-31 00:18:43,429 - pm_agent_app - INFO - Logging configured successfully.
+2025-05-31 00:18:44,322 - pm_agent_app - INFO - ✅ Connected to GitHub as: mediajunkie
+2025-05-31 00:18:44,327 - pm_agent_app - INFO - Anthropic client initialized.
+2025-05-31 00:18:44,328 - pm_agent_app - INFO - ClaudeClient initialized with model: claude-sonnet-4-20250514
+2025-05-31 00:18:49,785 - pm_agent_app - INFO - ✅ KnowledgeBase connected to collection: 'pm_knowledge_base' in 'pm_kb_docs'
+2025-05-31 00:18:49,791 - pm_agent_app - INFO - Current document count: 4
+2025-05-31 00:18:49,854 - pm_agent_app - INFO - Knowledge base already contains 4 documents.
+2025-05-31 00:18:49,855 - pm_agent_app - INFO - ✅ GitHubReviewer initialized, using GitHubAgent.
+2025-05-31 00:18:49,855 - pm_agent_app - INFO - ✅ PMAgent initialized successfully.
+2025-05-31 00:18:49,855 - pm_agent_app - INFO - 
+--- Test 1: Create Issue Intent ---
+2025-05-31 00:18:49,855 - pm_agent_app - INFO - 
+--- Processing User Query: 'I need a new feature for the user profile page. Add a dark mode toggle. This is for the Piper Morgan project.' ---
+2025-05-31 00:18:49,855 - pm_agent_app - INFO - Querying Claude for structured response (model: claude-sonnet-4-20250514).
+2025-05-31 00:18:49,855 - pm_agent_app - DEBUG - Prompt: I need a new feature for the user profile page. Add a dark mode toggle. This is for the Piper Morgan project....
+2025-05-31 00:18:49,855 - pm_agent_app - DEBUG - Context added to system message: Context: 
+        You are an AI assistant designed to understand user intent related to GitHub operations.
+        Strictly categorize the user's request into one of the following intents:
+        - '...
+2025-05-31 00:18:49,855 - pm_agent_app - DEBUG - Structured Query - Model: claude-sonnet-4-20250514
+2025-05-31 00:18:49,855 - pm_agent_app - DEBUG - Structured Query - System payload: Context: 
+        You are an AI assistant designed to understand user intent related to GitHub operations.
+        Strictly categorize the user's request into one of the following intents:
+        - '...
+2025-05-31 00:18:49,855 - pm_agent_app - DEBUG - Structured Query - Messages payload: [
+  {
+    "role": "user",
+    "content": "I need a new feature for the user profile page. Add a dark mode toggle. This is for the Piper Morgan project.\n\nThe response *must* be a JSON object matching this structure:\n```json\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"intent\": {\n      \"type\": \"string\",\n      \"enum\": [\n        \"create_issue\",\n        \"review_issue\",\n        \"get_issue_status\",\n        \"unknown\"\n      ]\n    },\n    \"repo_name\": {\n      \"type\": \"string\",\n      \"description\": \"The GitHub repository name in 'owner/repo' format (e.g., 'octocat/Spoon-Knife'). Infer from context or default if not explicit.\"\n    },\n    \"issue_number\": {\n      \"type\": \"integer\",\n      \"description\": \"The issue or pull request number (if applicable).\"\n    },\n    \"user_request_description\": {\n      \"type\": \"string\",\n      \"description\": \"A detailed description of the user's original request, rephrased for clarity if needed.\"\n    },\n    \"client_name\": {\n      \"type\": \"string\",\n      \"description\": \"The client or business unit related to the request (e.g., 'OCTO', 'Enterprise Client X').\"\n    },\n    \"project_name\": {\n      \"type\": \"string\",\n      \"description\": \"The specific project related to the request (e.g., 'Piper Morgan', 'Benefits Portfolio').\"\n    }\n  },\n  \"required\": [\n    \"intent\",\n    \"repo_name\",\n    \"user_request_description\"\n  ]\n}\n```"
+  }
+]
+2025-05-31 00:18:49,856 - pm_agent_app - DEBUG - Structured Query - Max tokens: 4000
+2025-05-31 00:18:49,856 - pm_agent_app - DEBUG - Structured Query - Temperature: 0.0
+2025-05-31 00:18:52,538 - pm_agent_app - DEBUG - Raw LLM structured response: {
+  "intent": "create_issue",
+  "repo_name": "mediajunkie/test-piper-morgan",
+  "user_request_description": "Add a dark mode toggle feature to the user profile page",
+  "project_name": "Piper Morgan"
+...
+2025-05-31 00:18:52,538 - pm_agent_app - INFO - Claude structured query successful, JSON parsed.
+2025-05-31 00:18:52,539 - pm_agent_app - INFO - 📝 Recognized Intent: create_issue
+2025-05-31 00:18:52,539 - pm_agent_app - INFO - 📁 Target Repo: mediajunkie/test-piper-morgan
+2025-05-31 00:18:52,539 - pm_agent_app - INFO - 💬 Description: Add a dark mode toggle feature to the user profile page
+2025-05-31 00:18:52,539 - pm_agent_app - INFO - 
+--- Processing request for repo 'mediajunkie/test-piper-morgan' ---
+2025-05-31 00:18:52,540 - pm_agent_app - INFO - User Request: 'Add a dark mode toggle feature to the user profile page'
+2025-05-31 00:18:52,540 - pm_agent_app - DEBUG - Searching knowledge base for project-specific context: {'project_name': 'Piper Morgan'}
+2025-05-31 00:18:52,675 - pm_agent_app - INFO - No relevant context found in knowledge base for issue creation.
+2025-05-31 00:18:52,675 - pm_agent_app - DEBUG - Querying LLM for issue template generation. User request: Add a dark mode toggle feature to the user profile page...
+2025-05-31 00:18:52,675 - pm_agent_app - INFO - Querying Claude for structured response (model: claude-sonnet-4-20250514).
+2025-05-31 00:18:52,675 - pm_agent_app - DEBUG - Prompt: Project Name: 'Piper Morgan'
+...
+2025-05-31 00:18:52,675 - pm_agent_app - DEBUG - Context added to system message: Context: **Output Format:** Your entire response must be a JSON object, adhering strictly to the `IssueTemplate` structure. Do not include any other text or markdown outside the JSON.
+You are a helpfu...
+2025-05-31 00:18:52,675 - pm_agent_app - DEBUG - Structured Query - Model: claude-sonnet-4-20250514
+2025-05-31 00:18:52,675 - pm_agent_app - DEBUG - Structured Query - System payload: Context: **Output Format:** Your entire response must be a JSON object, adhering strictly to the `IssueTemplate` structure. Do not include any other text or markdown outside the JSON.
+You are a helpfu...
+2025-05-31 00:18:52,676 - pm_agent_app - DEBUG - Structured Query - Messages payload: [
+  {
+    "role": "user",
+    "content": "Project Name: 'Piper Morgan'\n\n\nThe response *must* be a JSON object matching this structure:\n```json\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"title\": {\n      \"type\": \"string\",\n      \"description\": \"Concise issue title with emoji.\"\n    },\n    \"body\": {\n      \"type\": \"string\",\n      \"description\": \"Comprehensive issue body in Markdown.\"\n    },\n    \"labels\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"string\"\n      }\n    },\n    \"assignees\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"string\"\n      }\n    },\n    \"milestone\": {\n      \"type\": \"string\",\n      \"nullable\": true\n    }\n  },\n  \"required\": [\n    \"title\",\n    \"body\",\n    \"labels\"\n  ]\n}\n```"
+  }
+]
+2025-05-31 00:18:52,676 - pm_agent_app - DEBUG - Structured Query - Max tokens: 4000
+2025-05-31 00:18:52,676 - pm_agent_app - DEBUG - Structured Query - Temperature: 0.0
+2025-05-31 00:18:59,847 - pm_agent_app - DEBUG - Raw LLM structured response: ```json
+{
+  "title": "📋 Initial Project Setup for Piper Morgan",
+  "body": "## Project Overview\n\nThis issue tracks the initial setup and configuration for the **Piper Morgan** project.\n\n## Tasks t...
+2025-05-31 00:18:59,848 - pm_agent_app - INFO - Claude structured query successful, JSON parsed.
+2025-05-31 00:18:59,848 - pm_agent_app - INFO - Generated Issue Preview:
+Title: 📋 Initial Project Setup for Piper Morgan
+Body: ## Project Overview
+
+This issue tracks the initial setup and configuration for the **Piper Morgan** project.
+
+## Tasks to Complete
+
+- [ ] Set up project repository structure
+- [ ] Initialize developme...
+Labels: ['setup', 'documentation', 'infrastructure', 'high-priority']
+2025-05-31 00:18:59,848 - pm_agent_app - INFO - Attempting to create issue in repo 'mediajunkie/test-piper-morgan'
+2025-05-31 00:19:00,916 - pm_agent_app - INFO - Attempting to create issue: '📋 Initial Project Setup for Piper Morgan' in 'mediajunkie/test-piper-morgan'
+2025-05-31 00:19:00,916 - pm_agent_app - ERROR - An unexpected error occurred during issue creation.
+Traceback (most recent call last):
+  File "/Users/xian/Experiments/Piper Morgan/piper-morgan/github_agent.py", line 103, in create_issue
+    issue = repo.create_issue(
+  File "/Users/xian/Experiments/Piper Morgan/piper-morgan/venv/lib/python3.9/site-packages/github/Repository.py", line 1622, in create_issue
+    assert is_optional(milestone, github.Milestone.Milestone), milestone
+AssertionError: None
+2025-05-31 00:19:00,955 - pm_agent_app - ERROR - GitHub API Error during issue creation: An unexpected error occurred during issue creation: None
+2025-05-31 00:19:00,956 - pm_agent_app - ERROR - ❌ GitHub API Error during intent processing: An unexpected error occurred during issue creation: None
+2025-05-31 00:19:00,956 - pm_agent_app - INFO - 
+--- Test 2: Review Issue Intent (Placeholder) ---
+2025-05-31 00:19:00,956 - pm_agent_app - INFO - 
+--- Processing User Query: 'Can you review issue #123 in mediajunkie/test-piper-morgan? Check the acceptance criteria.' ---
+2025-05-31 00:19:00,957 - pm_agent_app - INFO - Querying Claude for structured response (model: claude-sonnet-4-20250514).
+2025-05-31 00:19:00,957 - pm_agent_app - DEBUG - Prompt: Can you review issue #123 in mediajunkie/test-piper-morgan? Check the acceptance criteria....
+2025-05-31 00:19:00,957 - pm_agent_app - DEBUG - Context added to system message: Context: 
+        You are an AI assistant designed to understand user intent related to GitHub operations.
+        Strictly categorize the user's request into one of the following intents:
+        - '...
+2025-05-31 00:19:00,957 - pm_agent_app - DEBUG - Structured Query - Model: claude-sonnet-4-20250514
+2025-05-31 00:19:00,957 - pm_agent_app - DEBUG - Structured Query - System payload: Context: 
+        You are an AI assistant designed to understand user intent related to GitHub operations.
+        Strictly categorize the user's request into one of the following intents:
+        - '...
+2025-05-31 00:19:00,958 - pm_agent_app - DEBUG - Structured Query - Messages payload: [
+  {
+    "role": "user",
+    "content": "Can you review issue #123 in mediajunkie/test-piper-morgan? Check the acceptance criteria.\n\nThe response *must* be a JSON object matching this structure:\n```json\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"intent\": {\n      \"type\": \"string\",\n      \"enum\": [\n        \"create_issue\",\n        \"review_issue\",\n        \"get_issue_status\",\n        \"unknown\"\n      ]\n    },\n    \"repo_name\": {\n      \"type\": \"string\",\n      \"description\": \"The GitHub repository name in 'owner/repo' format (e.g., 'octocat/Spoon-Knife'). Infer from context or default if not explicit.\"\n    },\n    \"issue_number\": {\n      \"type\": \"integer\",\n      \"description\": \"The issue or pull request number (if applicable).\"\n    },\n    \"user_request_description\": {\n      \"type\": \"string\",\n      \"description\": \"A detailed description of the user's original request, rephrased for clarity if needed.\"\n    },\n    \"client_name\": {\n      \"type\": \"string\",\n      \"description\": \"The client or business unit related to the request (e.g., 'OCTO', 'Enterprise Client X').\"\n    },\n    \"project_name\": {\n      \"type\": \"string\",\n      \"description\": \"The specific project related to the request (e.g., 'Piper Morgan', 'Benefits Portfolio').\"\n    }\n  },\n  \"required\": [\n    \"intent\",\n    \"repo_name\",\n    \"user_request_description\"\n  ]\n}\n```"
+  }
+]
+2025-05-31 00:19:00,958 - pm_agent_app - DEBUG - Structured Query - Max tokens: 4000
+2025-05-31 00:19:00,958 - pm_agent_app - DEBUG - Structured Query - Temperature: 0.0
+2025-05-31 00:19:03,838 - pm_agent_app - DEBUG - Raw LLM structured response: {
+  "intent": "review_issue",
+  "repo_name": "mediajunkie/test-piper-morgan",
+  "issue_number": 123,
+  "user_request_description": "Review issue #123 in the mediajunkie/test-piper-morgan repository an...
+2025-05-31 00:19:03,839 - pm_agent_app - INFO - Claude structured query successful, JSON parsed.
+2025-05-31 00:19:03,839 - pm_agent_app - INFO - 📝 Recognized Intent: review_issue
+2025-05-31 00:19:03,839 - pm_agent_app - INFO - 📁 Target Repo: mediajunkie/test-piper-morgan
+2025-05-31 00:19:03,839 - pm_agent_app - INFO - 🔢 Issue Number: 123
+2025-05-31 00:19:03,839 - pm_agent_app - INFO - 💬 Description: Review issue #123 in the mediajunkie/test-piper-morgan repository and check the acceptance criteria
+2025-05-31 00:19:03,839 - pm_agent_app - INFO - 
+--- Reviewing issue #123 in repo 'mediajunkie/test-piper-morgan' ---
+2025-05-31 00:19:03,840 - pm_agent_app - INFO - Review Instructions: 'Review issue #123 in the mediajunkie/test-piper-morgan repository and check the acceptance criteria'
+2025-05-31 00:19:05,527 - pm_agent_app - WARNING - GitHub issue #123 not found in 'mediajunkie/test-piper-morgan'.
+2025-05-31 00:19:05,528 - pm_agent_app - ERROR - ❌ GitHub API Error during intent processing: GitHub issue #123 not found in 'mediajunkie/test-piper-morgan': 404 {"message": "Not Found", "documentation_url": "https://docs.github.com/rest/issues/issues#get-an-issue", "status": "404"}
+2025-05-31 00:19:05,529 - pm_agent_app - INFO - 
+--- Test 3: Get Issue Status Intent ---
+2025-05-31 00:19:05,529 - pm_agent_app - INFO - 
+--- Processing User Query: 'What's the status of issue #1 in mediajunkie/test-piper-morgan?' ---
+2025-05-31 00:19:05,529 - pm_agent_app - INFO - Querying Claude for structured response (model: claude-sonnet-4-20250514).
+2025-05-31 00:19:05,529 - pm_agent_app - DEBUG - Prompt: What's the status of issue #1 in mediajunkie/test-piper-morgan?...
+2025-05-31 00:19:05,529 - pm_agent_app - DEBUG - Context added to system message: Context: 
+        You are an AI assistant designed to understand user intent related to GitHub operations.
+        Strictly categorize the user's request into one of the following intents:
+        - '...
+2025-05-31 00:19:05,529 - pm_agent_app - DEBUG - Structured Query - Model: claude-sonnet-4-20250514
+2025-05-31 00:19:05,529 - pm_agent_app - DEBUG - Structured Query - System payload: Context: 
+        You are an AI assistant designed to understand user intent related to GitHub operations.
+        Strictly categorize the user's request into one of the following intents:
+        - '...
+2025-05-31 00:19:05,529 - pm_agent_app - DEBUG - Structured Query - Messages payload: [
+  {
+    "role": "user",
+    "content": "What's the status of issue #1 in mediajunkie/test-piper-morgan?\n\nThe response *must* be a JSON object matching this structure:\n```json\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"intent\": {\n      \"type\": \"string\",\n      \"enum\": [\n        \"create_issue\",\n        \"review_issue\",\n        \"get_issue_status\",\n        \"unknown\"\n      ]\n    },\n    \"repo_name\": {\n      \"type\": \"string\",\n      \"description\": \"The GitHub repository name in 'owner/repo' format (e.g., 'octocat/Spoon-Knife'). Infer from context or default if not explicit.\"\n    },\n    \"issue_number\": {\n      \"type\": \"integer\",\n      \"description\": \"The issue or pull request number (if applicable).\"\n    },\n    \"user_request_description\": {\n      \"type\": \"string\",\n      \"description\": \"A detailed description of the user's original request, rephrased for clarity if needed.\"\n    },\n    \"client_name\": {\n      \"type\": \"string\",\n      \"description\": \"The client or business unit related to the request (e.g., 'OCTO', 'Enterprise Client X').\"\n    },\n    \"project_name\": {\n      \"type\": \"string\",\n      \"description\": \"The specific project related to the request (e.g., 'Piper Morgan', 'Benefits Portfolio').\"\n    }\n  },\n  \"required\": [\n    \"intent\",\n    \"repo_name\",\n    \"user_request_description\"\n  ]\n}\n```"
+  }
+]
+2025-05-31 00:19:05,530 - pm_agent_app - DEBUG - Structured Query - Max tokens: 4000
+2025-05-31 00:19:05,530 - pm_agent_app - DEBUG - Structured Query - Temperature: 0.0
+2025-05-31 00:19:08,200 - pm_agent_app - DEBUG - Raw LLM structured response: {
+  "intent": "get_issue_status",
+  "repo_name": "mediajunkie/test-piper-morgan",
+  "issue_number": 1,
+  "user_request_description": "User wants to check the current status of issue #1 in the mediajun...
+2025-05-31 00:19:08,201 - pm_agent_app - INFO - Claude structured query successful, JSON parsed.
+2025-05-31 00:19:08,201 - pm_agent_app - INFO - 📝 Recognized Intent: get_issue_status
+2025-05-31 00:19:08,201 - pm_agent_app - INFO - 📁 Target Repo: mediajunkie/test-piper-morgan
+2025-05-31 00:19:08,201 - pm_agent_app - INFO - 🔢 Issue Number: 1
+2025-05-31 00:19:08,201 - pm_agent_app - INFO - 💬 Description: User wants to check the current status of issue #1 in the mediajunkie/test-piper-morgan repository
+2025-05-31 00:19:08,202 - pm_agent_app - INFO - 
+--- Getting status for issue #1 in repo 'mediajunkie/test-piper-morgan' ---
+2025-05-31 00:19:09,968 - pm_agent_app - WARNING - GitHub issue #1 not found in 'mediajunkie/test-piper-morgan'.
+2025-05-31 00:19:09,969 - pm_agent_app - ERROR - ❌ GitHub API Error during intent processing: GitHub issue #1 not found in 'mediajunkie/test-piper-morgan': 404 {"message": "Not Found", "documentation_url": "https://docs.github.com/rest/issues/issues#get-an-issue", "status": "404"}
+2025-05-31 00:19:09,969 - pm_agent_app - INFO - 
+--- Test 4: Unknown Intent ---
+2025-05-31 00:19:09,969 - pm_agent_app - INFO - 
+--- Processing User Query: 'Tell me a joke about a developer and a product manager.' ---
+2025-05-31 00:19:09,970 - pm_agent_app - INFO - Querying Claude for structured response (model: claude-sonnet-4-20250514).
+2025-05-31 00:19:09,970 - pm_agent_app - DEBUG - Prompt: Tell me a joke about a developer and a product manager....
+2025-05-31 00:19:09,970 - pm_agent_app - DEBUG - Context added to system message: Context: 
+        You are an AI assistant designed to understand user intent related to GitHub operations.
+        Strictly categorize the user's request into one of the following intents:
+        - '...
+2025-05-31 00:19:09,970 - pm_agent_app - DEBUG - Structured Query - Model: claude-sonnet-4-20250514
+2025-05-31 00:19:09,970 - pm_agent_app - DEBUG - Structured Query - System payload: Context: 
+        You are an AI assistant designed to understand user intent related to GitHub operations.
+        Strictly categorize the user's request into one of the following intents:
+        - '...
+2025-05-31 00:19:09,970 - pm_agent_app - DEBUG - Structured Query - Messages payload: [
+  {
+    "role": "user",
+    "content": "Tell me a joke about a developer and a product manager.\n\nThe response *must* be a JSON object matching this structure:\n```json\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"intent\": {\n      \"type\": \"string\",\n      \"enum\": [\n        \"create_issue\",\n        \"review_issue\",\n        \"get_issue_status\",\n        \"unknown\"\n      ]\n    },\n    \"repo_name\": {\n      \"type\": \"string\",\n      \"description\": \"The GitHub repository name in 'owner/repo' format (e.g., 'octocat/Spoon-Knife'). Infer from context or default if not explicit.\"\n    },\n    \"issue_number\": {\n      \"type\": \"integer\",\n      \"description\": \"The issue or pull request number (if applicable).\"\n    },\n    \"user_request_description\": {\n      \"type\": \"string\",\n      \"description\": \"A detailed description of the user's original request, rephrased for clarity if needed.\"\n    },\n    \"client_name\": {\n      \"type\": \"string\",\n      \"description\": \"The client or business unit related to the request (e.g., 'OCTO', 'Enterprise Client X').\"\n    },\n    \"project_name\": {\n      \"type\": \"string\",\n      \"description\": \"The specific project related to the request (e.g., 'Piper Morgan', 'Benefits Portfolio').\"\n    }\n  },\n  \"required\": [\n    \"intent\",\n    \"repo_name\",\n    \"user_request_description\"\n  ]\n}\n```"
+  }
+]
+2025-05-31 00:19:09,971 - pm_agent_app - DEBUG - Structured Query - Max tokens: 4000
+2025-05-31 00:19:09,971 - pm_agent_app - DEBUG - Structured Query - Temperature: 0.0
+2025-05-31 00:19:12,397 - pm_agent_app - DEBUG - Raw LLM structured response: {
+  "intent": "unknown",
+  "repo_name": "",
+  "user_request_description": "User is requesting a joke about a developer and a product manager, which is not related to GitHub operations such as creating...
+2025-05-31 00:19:12,397 - pm_agent_app - INFO - Claude structured query successful, JSON parsed.
+2025-05-31 00:19:12,398 - pm_agent_app - INFO - 📝 Recognized Intent: unknown
+2025-05-31 00:19:12,398 - pm_agent_app - INFO - 📁 Target Repo: 
+2025-05-31 00:19:12,398 - pm_agent_app - INFO - 💬 Description: User is requesting a joke about a developer and a product manager, which is not related to GitHub operations such as creating issues, reviewing issues, or checking issue status.
+2025-05-31 00:19:12,398 - pm_agent_app - WARNING - 🤷‍♂️ Intent is unknown. Please rephrase your request: 'Tell me a joke about a developer and a product manager.'

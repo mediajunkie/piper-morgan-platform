@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI PM Agent - Team All-Hands</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            overflow: hidden;
+        }
+        
+        .slideshow-container {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .slide {
+            display: none;
+            width: 90%;
+            max-width: 1200px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 60px;
+            text-align: center;
+            animation: slideIn 0.5s ease-in-out;
+        }
+        
+        .slide.active {
+            display: block;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        h1 {
+            color: #2c3e50;
+            font-size: 3em;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        h2 {
+            color: #34495e;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+        
+        h3 {
+            color: #2980b9;
+            font-size: 1.8em;
+            margin: 30px 0 15px 0;
+        }
+        
+        .subtitle {
+            font-size: 1.3em;
+            color: #7f8c8d;
+            margin-bottom: 40px;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+            margin: 40px 0;
+        }
+        
+        .feature-card {
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            text-align: left;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .feature-card h4 {
+            margin: 0 0 10px 0;
+            font-size: 1.3em;
+        }
+        
+        .demo-box {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 30px 0;
+            text-align: left;
+        }
+        
+        .input-text {
+            background: #fff3cd;
+            padding: 15px;
+            border-left: 4px solid #ffc107;
+            margin: 15px 0;
+            font-style: italic;
+        }
+        
+        .output-text {
+            background: #d1ecf1;
+            padding: 15px;
+            border-left: 4px solid #17a2b8;
+            margin: 15px 0;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+        
+        .timeline {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 40px 0;
+            position: relative;
+        }
+        
+        .timeline::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #2ecc71, #f39c12, #e74c3c);
+            z-index: 0;
+        }
+        
+        .timeline-item {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            position: relative;
+            z-index: 1;
+            flex: 1;
+            margin: 0 10px;
+            text-align: center;
+        }
+        
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            margin: 40px 0;
+        }
+        
+        .metric-card {
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+        }
+        
+        .metric-number {
+            font-size: 3em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .metric-label {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .navigation {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            z-index: 1000;
+        }
+        
+        .nav-btn {
+            background: rgba(255,255,255,0.9);
+            border: none;
+            padding: 15px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            color: #2c3e50;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .nav-btn:hover {
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .slide-number {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            background: rgba(0,0,0,0.1);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            color: #666;
+        }
+        
+        ul {
+            text-align: left;
+            font-size: 1.2em;
+            line-height: 1.8;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        li {
+            margin: 15px 0;
+            padding-left: 10px;
+        }
+        
+        .highlight {
+            background: linear-gradient(120deg, #a8edea 0%, #fed6e3 100%);
+            padding: 2px 8px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        
+        .cta {
+            background: linear-gradient(135deg, #fd79a8 0%, #fdcb6e 100%);
+            color: white;
+            padding: 20px 40px;
+            border-radius: 25px;
+            font-size: 1.3em;
+            font-weight: bold;
+            margin: 30px 0;
+            display: inline-block;
+            text-decoration: none;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .cta:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        }
+    </style>
+</head>
+<body>
+    <div class="slideshow-container">
+        <!-- Slide 1: Title -->
+        <div class="slide active">
+            <div class="slide-number">1 / 8</div>
+            <h1>🤖 AI PM Agent</h1>
+            <p class="subtitle">Automating Routine PM Tasks with Intelligence</p>
+            <div class="demo-box">
+                <h3>What it does:</h3>
+                <p style="font-size: 1.3em; margin: 0;">Converts natural language into professional GitHub issues, reviews existing tickets, and learns from your team's knowledge base.</p>
+            </div>
+            <p style="font-size: 1.1em; color: #7f8c8d; margin-top: 40px;">Christian Crumlish • Team All-Hands • 5-minute demo</p>
+        </div>
+
+        <!-- Slide 2: The Problem -->
+        <div class="slide">
+            <div class="slide-number">2 / 8</div>
+            <h2>The Problem We're Solving</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>⏰ Time Sink</h4>
+                    <p>PMs spend hours writing and formatting GitHub issues</p>
+                </div>
+                <div class="feature-card">
+                    <h4>🔄 Inconsistency</h4>
+                    <p>Issue quality varies across team members and projects</p>
+                </div>
+                <div class="feature-card">
+                    <h4>🧠 Knowledge Gaps</h4>
+                    <p>Organizational context gets lost or forgotten</p>
+                </div>
+                <div class="feature-card">
+                    <h4>🆕 Onboarding Friction</h4>
+                    <p>New team members struggle with ticket standards</p>
+                </div>
+            </div>
+            <p style="font-size: 1.3em; margin-top: 30px;">What if we could <span class="highlight">automate the routine</span> while <span class="highlight">learning from our expertise</span>?</p>
+        </div>
+
+        <!-- Slide 3: Live Demo -->
+        <div class="slide">
+            <div class="slide-number">3 / 8</div>
+            <h2>Live Demo: Natural Language → GitHub Issue</h2>
+            <div class="demo-box">
+                <h3>Input (what you type):</h3>
+                <div class="input-text">
+                    "Users are complaining that the mobile app crashes when they try to upload photos larger than 10MB"
+                </div>
+                
+                <h3>Output (what gets created):</h3>
+                <div class="output-text">
+                    <strong>Title:</strong> [Mobile] App crashes on large photo uploads (>10MB)<br><br>
+                    <strong>Description:</strong> Users are experiencing app crashes when attempting to upload photos larger than 10MB...<br><br>
+                    <strong>Acceptance Criteria:</strong><br>
+                    ✓ App handles files up to 50MB without crashing<br>
+                    ✓ User sees progress indicator during upload<br>
+                    ✓ Error handling for oversized files<br><br>
+                    <strong>Labels:</strong> bug, mobile, priority-high
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Current Capabilities -->
+        <div class="slide">
+            <div class="slide-number">4 / 8</div>
+            <h2>What's Working Today</h2>
+            <ul style="font-size: 1.3em;">
+                <li><strong>🎯 Smart Issue Creation</strong> - Professional formatting with automatic labeling</li>
+                <li><strong>📚 Knowledge Integration</strong> - Learns from uploaded documents (PDFs, docs, etc.)</li>
+                <li><strong>🔍 Issue Review</strong> - Analyzes existing tickets and suggests improvements</li>
+                <li><strong>💬 Web Interface</strong> - Chat-based interaction, no technical setup needed</li>
+                <li><strong>🔒 Secure</strong> - Local processing, your data stays private</li>
+            </ul>
+            <div style="background: #d4edda; padding: 20px; border-radius: 10px; margin-top: 30px;">
+                <strong>Status:</strong> Ready for team testing and feedback!
+            </div>
+        </div>
+
+        <!-- Slide 5: Development Journey -->
+        <div class="slide">
+            <div class="slide-number">5 / 8</div>
+            <h2>How We Got Here</h2>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <h4>Week 1</h4>
+                    <p><strong>Research & POC</strong><br>Platform evaluation, basic prototype</p>
+                </div>
+                <div class="timeline-item">
+                    <h4>Week 2</h4>
+                    <p><strong>Core Features</strong><br>GitHub integration, Claude AI</p>
+                </div>
+                <div class="timeline-item">
+                    <h4>Week 3</h4>
+                    <p><strong>Polish & Testing</strong><br>Web UI, knowledge base</p>
+                </div>
+            </div>
+            <div class="metrics">
+                <div class="metric-card">
+                    <div class="metric-number">3</div>
+                    <div class="metric-label">Weeks Development</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-number">5</div>
+                    <div class="metric-label">Core Features</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-number">∞</div>
+                    <div class="metric-label">Learning Potential</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: What's Next -->
+        <div class="slide">
+            <div class="slide-number">6 / 8</div>
+            <h2>Roadmap: What's Coming</h2>
+            <div class="feature-grid">
+                <div class="feature-card" style="background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);">
+                    <h4>🧠 Learning Loop</h4>
+                    <p>Tracks your edits to improve suggestions over time</p>
+                </div>
+                <div class="feature-card" style="background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);">
+                    <h4>❓ Smart Questions</h4>
+                    <p>Asks clarifying questions when requests are ambiguous</p>
+                </div>
+                <div class="feature-card" style="background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);">
+                    <h4>📊 Analytics Integration</h4>
+                    <p>Automated reports and anomaly detection</p>
+                </div>
+                <div class="feature-card" style="background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);">
+                    <h4>🤝 Team Features</h4>
+                    <p>Multi-project support and collaborative learning</p>
+                </div>
+            </div>
+            <p style="font-size: 1.2em; margin-top: 30px;">Goal: <span class="highlight">Save 2-3 hours per PM per week</span> on routine tasks</p>
+        </div>
+
+        <!-- Slide 7: Try It Out -->
+        <div class="slide">
+            <div class="slide-number">7 / 8</div>
+            <h2>Ready to Try It?</h2>
+            <div style="background: #f8f9fa; padding: 40px; border-radius: 15px; margin: 30px 0;">
+                <h3>Getting Started:</h3>
+                <ul style="font-size: 1.2em; text-align: left; max-width: 600px; margin: 0 auto;">
+                    <li>Ping me for setup instructions (5 minutes)</li>
+                    <li>Try creating a few test issues</li>
+                    <li>Upload some project docs to see context magic</li>
+                    <li>Share feedback - what works, what doesn't?</li>
+                </ul>
+            </div>
+            
+            <div class="feature-grid" style="margin-top: 40px;">
+                <div style="text-align: center;">
+                    <h4>🎯 Perfect For:</h4>
+                    <p>Bug reports, feature requests, improvement suggestions</p>
+                </div>
+                <div style="text-align: center;">
+                    <h4>⚡ Benefits:</h4>
+                    <p>Faster tickets, better consistency, improved quality</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8: Questions -->
+        <div class="slide">
+            <div class="slide-number">8 / 8</div>
+            <h1 style="margin-bottom: 40px;">Questions?</h1>
+            <div style="font-size: 1.4em; line-height: 2; margin: 40px 0;">
+                <p>🤖 <strong>Technical:</strong> How does the AI work?</p>
+                <p>🔒 <strong>Security:</strong> Where does our data go?</p>
+                <p>📈 <strong>Impact:</strong> How do we measure success?</p>
+                <p>🚀 <strong>Future:</strong> What else could it do?</p>
+            </div>
+            
+            <div class="cta" style="display: inline-block; margin-top: 40px;">
+                Let's discuss and get you set up!
+            </div>
+            
+            <p style="font-size: 1.1em; color: #7f8c8d; margin-top: 40px;">
+                Thanks! • Christian Crumlish • @xian
+            </p>
+        </div>
+    </div>
+
+    <div class="navigation">
+        <button class="nav-btn" onclick="changeSlide(-1)">← Previous</button>
+        <button class="nav-btn" onclick="changeSlide(1)">Next →</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (n + totalSlides) % totalSlides;
+            slides[currentSlide].classList.add('active');
+        }
+
+        function changeSlide(direction) {
+            showSlide(currentSlide + direction);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowLeft') changeSlide(-1);
+            if (e.key === 'ArrowRight') changeSlide(1);
+            if (e.key === ' ') {
+                e.preventDefault();
+                changeSlide(1);
+            }
+        });
+
+        // Auto-advance option (uncomment to enable)
+        // setInterval(() => changeSlide(1), 10000);
+    </script>
+</body>
+</html>

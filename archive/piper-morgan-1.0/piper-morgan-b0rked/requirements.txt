@@ -1,0 +1,27 @@
+# Core dependencies
+langchain
+langchain-openai
+langchain-community
+openai
+anthropic==0.18.1
+chromadb
+python-dotenv
+
+# GitHub integration
+PyGithub
+
+# Document processing
+pypdf2
+python-docx
+
+# Web interface
+streamlit
+
+# HTTP client (for anthropic)
+httpx==0.24.1
+
+# Avoid version conflicts
+urllib3==1.26.18
+
+#
+sentence-transformers
