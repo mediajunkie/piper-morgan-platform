@@ -7,6 +7,11 @@ from config import app_config # Import app_config
 import json
 import os
 
+# Suppress torch warnings that don't affect our functionality
+import warnings
+warnings.filterwarnings("ignore", message=".*torch.*")
+warnings.filterwarnings("ignore", message=".*running event loop.*")
+
 # Page config
 st.set_page_config(
     page_title="PM Agent - Piper Morgan",
