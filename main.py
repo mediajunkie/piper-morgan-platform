@@ -14,7 +14,7 @@ import os
 from fastapi import File, UploadFile, Form
 import tempfile
 import shutil
-from services.knowledge_graph import get_ingester
+from services.knowledge_graph import get_document_service
 
 # Load environment variables FIRST
 load_dotenv()
@@ -195,67 +195,42 @@ async def upload_document(
     source_type: Optional[str] = Form("reference"),
     knowledge_domain: Optional[str] = Form("pm_fundamentals")
 ):
-    """
-    Upload a document to the knowledge base
-    
-    Args:
-        file: The document file (PDF supported)
-        title: Document title
-        author: Document author  
-        source_type: Type of source (reference, guide, internal, etc.)
-        knowledge_domain: Knowledge domain (pm_fundamentals, business_context, product_context, task_context)
-    """
-    # Validate file type
-    if not file.filename.lower().endswith('.pdf'):
-        raise HTTPException(status_code=400, detail="Only PDF files are currently supported")
+    """Upload a document to the knowledge base"""
     
     # Validate knowledge domain
     valid_domains = ["pm_fundamentals", "business_context", "product_context", "task_context"]
     if knowledge_domain not in valid_domains:
         raise HTTPException(status_code=400, detail=f"Invalid knowledge domain. Must be one of: {valid_domains}")
     
-    # Create temp file
-    with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as tmp_file:
-        try:
-            # Copy uploaded file to temp location
-            shutil.copyfileobj(file.file, tmp_file)
-            tmp_file_path = tmp_file.name
-            
-            # Prepare metadata
-            metadata = {
-                "title": title or file.filename,
-                "author": author or "Unknown",
-                "source_type": source_type,
+    # Prepare metadata
+    metadata = {
+        "title": title or file.filename,
+        "author": author or "Unknown",
+        "source_type": source_type,
+        "knowledge_domain": knowledge_domain,
+        "original_filename": file.filename
+    }
+    
+    try:
+        # Use document service - clean abstraction!
+        result = await get_document_service().upload_pdf(file, metadata)
+        
+        # Emit event for learning system
+        if hasattr(app.state, 'event_bus'):
+            await app.state.event_bus.emit("knowledge.document_added", {
+                "document_id": result.get("details", {}).get("document_id"),
+                "title": metadata["title"],
                 "knowledge_domain": knowledge_domain,
-                "original_filename": file.filename
-            }
-            
-            # Ingest the document
-            logger.info(f"Ingesting document: {file.filename} into domain: {knowledge_domain}")
-            result = await get_ingester().ingest_pdf(tmp_file_path, metadata)
-            
-            # Emit event for learning system
-            if hasattr(app.state, 'event_bus'):
-                await app.state.event_bus.emit("knowledge.document_added", {
-                    "document_id": result.get("document_id"),
-                    "title": metadata["title"],
-                    "knowledge_domain": knowledge_domain,
-                    "chunks": result.get("chunks_created", 0)
-                })
-            
-            return {
-                "status": "success",
-                "message": f"Document '{metadata['title']}' successfully ingested into {knowledge_domain}",
-                "details": result
-            }
-            
-        except Exception as e:
-            logger.error(f"Document upload failed: {e}")
-            raise HTTPException(status_code=500, detail=f"Failed to process document: {str(e)}")
-        finally:
-            # Clean up temp file
-            if os.path.exists(tmp_file_path):
-                os.unlink(tmp_file_path)
+                "chunks": result.get("details", {}).get("chunks_created", 0)
+            })
+        
+        return result
+        
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        logger.error(f"Document upload failed: {e}")
+        raise HTTPException(status_code=500, detail="Failed to process document")
 
 @app.get("/api/v1/knowledge/search")
 async def search_knowledge(query: str, limit: int = 5):

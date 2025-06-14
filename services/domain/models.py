@@ -2,12 +2,17 @@
 Piper Morgan 1.0 - Domain Models
 The heart of the system - these models drive everything else.
 """
-# 2025-06-07: Restored after accidental script copy, added missing Workflow classes
+# 2025-06-14: Fixed Task type field and status enum to match database model and shared_types
 from dataclasses import dataclass, field
 from typing import List, Optional, Dict, Any
 from datetime import datetime
 from enum import Enum
 from uuid import uuid4
+
+# Import shared types for consistency
+from services.shared_types import TaskType, TaskStatus, IntentCategory, WorkflowType, WorkflowStatus
+
+
 
 # Core Entities
 @dataclass
@@ -61,13 +66,6 @@ class WorkItem:
     metadata: Dict[str, Any] = field(default_factory=dict)
     created_at: datetime = field(default_factory=datetime.now)
 
-# Intent System
-class IntentCategory(Enum):
-    EXECUTION = "execution"    # Create, update, status
-    ANALYSIS = "analysis"      # Trends, risks, opportunities
-    SYNTHESIS = "synthesis"    # Generate docs, summarize
-    STRATEGY = "strategy"      # Prioritize, plan, recommend
-    LEARNING = "learning"      # What worked, patterns
 
 @dataclass  
 class Intent:
@@ -79,25 +77,14 @@ class Intent:
     confidence: float = 0.0
     created_at: datetime = field(default_factory=datetime.now)
 
-# Workflow Management
-class WorkflowType(Enum):
-    CREATE_TICKET = "create_ticket"
-    ANALYZE_DOCUMENT = "analyze_document"
-    GENERATE_REPORT = "generate_report"
-    REVIEW_ISSUE = "review_issue"
-
-class WorkflowStatus(Enum):
-    PENDING = "pending"
-    RUNNING = "running"
-    COMPLETED = "completed"
-    FAILED = "failed"
 
 @dataclass
 class Task:
     """Individual task within a workflow"""
     id: str = field(default_factory=lambda: str(uuid4()))
     name: str = ""
-    status: WorkflowStatus = WorkflowStatus.PENDING
+    type: Optional[TaskType] = None
+    status: TaskStatus = TaskStatus.PENDING
     result: Optional[Dict[str, Any]] = None
     error: Optional[str] = None
     created_at: datetime = field(default_factory=datetime.now)
@@ -106,6 +93,7 @@ class Task:
         return {
             "id": self.id,
             "name": self.name,
+            "type": self.type.value if self.type else None,
             "status": self.status.value,
             "result": self.result,
             "error": self.error,
@@ -133,6 +121,34 @@ class Workflow:
     intent_id: Optional[str] = None
     created_at: datetime = field(default_factory=datetime.now)
     updated_at: datetime = field(default_factory=datetime.now)
+    
+    def get_next_task(self) -> Optional[Task]:
+        """Get the next pending task in the workflow"""
+        for task in self.tasks:
+            if task.status == TaskStatus.PENDING:
+                return task
+        return None
+
+    def mark_task_completed(self, task_id: str, result: Dict[str, Any]):
+        """Mark a task as completed with result"""
+        for task in self.tasks:
+            if task.id == task_id:
+                task.status = TaskStatus.COMPLETED
+                task.result = result
+                break
+
+    def mark_task_failed(self, task_id: str, error: str):
+        """Mark a task as failed with error"""
+        for task in self.tasks:
+            if task.id == task_id:
+                task.status = TaskStatus.FAILED
+                task.error = error
+                break
+
+    def is_complete(self) -> bool:
+        """Check if all tasks are completed"""
+        return all(task.status in [TaskStatus.COMPLETED, TaskStatus.FAILED] 
+                   for task in self.tasks)
     
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -167,7 +183,8 @@ class Workflow:
             task = Task(
                 id=task_data.get("id", str(uuid4())),
                 name=task_data.get("name", ""),
-                status=WorkflowStatus(task_data.get("status", "pending")),
+                type=TaskType(task_data["type"]) if task_data.get("type") else None,
+                status=TaskStatus(task_data.get("status", "pending")),
                 result=task_data.get("result"),
                 error=task_data.get("error"),
                 created_at=datetime.fromisoformat(task_data.get("created_at", datetime.now().isoformat()))

@@ -1,14 +1,9 @@
-# Test knowledge search specifically
-python3 -c "
-from dotenv import load_dotenv
-load_dotenv()
-from services.knowledge_graph.ingestion import get_ingester
-import asyncio
+# Create and push stable demo branch
+git checkout -b demo-stable-pm-008
+git add .
+git commit -m "PM-008 Complete: Working GitHub issue analysis with domain-first architecture"
+git push -u origin demo-stable-pm-008
 
-async def test():
-    knowledge = get_ingester()
-    results = await knowledge.search('GitHub issue best practices', n_results=2)
-    print(f'✅ Knowledge search returned {len(results)} results')
-
-asyncio.run(test())
-"
+# Tag this as a milestone
+git tag v1.0-pm-008-demo
+git push origin v1.0-pm-008-demo

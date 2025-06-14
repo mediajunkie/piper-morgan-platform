@@ -9,11 +9,11 @@ class DatabasePool:
     async def get_pool(cls):
         if cls._pool is None:
             cls._pool = await asyncpg.create_pool(
-                host="localhost",
-                port=5432,
-                user="piper",
+                host=os.getenv("POSTGRES_HOST", "localhost"),
+                port=int(os.getenv("POSTGRES_PORT", "5432")),
+                user=os.getenv("POSTGRES_USER", "piper"),
                 password=os.getenv("POSTGRES_PASSWORD", "dev_changeme"),
-                database="piper_morgan",
+                database=os.getenv("POSTGRES_DB", "piper_morgan"),
                 min_size=1,
                 max_size=10
             )

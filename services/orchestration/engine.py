@@ -3,22 +3,28 @@ Orchestration Engine
 Coordinates multi-step workflows for PM tasks
 PM-008 Github integration
 """
+# 2025-06-14: Fixed to use domain-first design - domain models instead of orchestration-specific classes
 import asyncio
 import structlog
 from typing import Dict, Any, Optional, List
 from datetime import datetime
+from dataclasses import dataclass
 
-from services.domain.models import Intent, IntentCategory
-from services.repositories import DatabasePool
-from services.repositories.workflow_repository import WorkflowRepository
+# Domain-first imports - use domain models consistently
+from services.domain.models import Intent, IntentCategory, Workflow, Task
 from services.database import RepositoryFactory
 from services.shared_types import WorkflowType, WorkflowStatus, TaskType, TaskStatus
-from .workflows import Workflow, WorkflowDefinition, WORKFLOW_DEFINITIONS
-from .tasks import Task, TaskResult
 from services.integrations.github.issue_analyzer import GitHubIssueAnalyzer
 from services.llm.clients import llm_client
 
 logger = structlog.get_logger()
+
+@dataclass
+class TaskResult:
+    """Result from executing a task - simple dataclass for task handlers"""
+    success: bool
+    output_data: Dict[str, Any] = None
+    error: Optional[str] = None
 
 class OrchestrationEngine:
     
@@ -50,60 +56,41 @@ class OrchestrationEngine:
         """Create appropriate workflow based on intent with database persistence"""
         workflow = await self.factory.create_from_intent(intent)
         if workflow:
+            # Store in memory for execution
             self.workflows[workflow.id] = workflow
+            
+            # Persist to database using repository pattern
+            await self._persist_workflow_to_database(workflow)
         return workflow
     
-    def _map_intent_to_workflow(self, intent: Intent) -> Optional[WorkflowType]:
-        """Map intent to appropriate workflow type"""
-        
-        # Normalize the action for easier matching
-        action_lower = intent.action.lower()
-        
-        if intent.category == IntentCategory.EXECUTION:
-            # Creation tasks
-            if "create" in action_lower:
-                if "feature" in action_lower:
-                    return WorkflowType.CREATE_FEATURE
-                elif "ticket" in action_lower or "issue" in action_lower:
-                    return WorkflowType.CREATE_TICKET
-                elif "task" in action_lower:
-                    return WorkflowType.CREATE_TASK
-            # Review tasks
-            elif "review" in action_lower or "check" in action_lower:
-                return WorkflowType.REVIEW_ITEM
-                
-        elif intent.category == IntentCategory.ANALYSIS:
-            if "metric" in action_lower or "analyz" in action_lower:
-                return WorkflowType.ANALYZE_METRICS
-                
-        elif intent.category == IntentCategory.SYNTHESIS:
-            if "report" in action_lower or "generat" in action_lower:
-                return WorkflowType.GENERATE_REPORT
-                
-        elif intent.category == IntentCategory.STRATEGY:
-            if "plan" in action_lower or "strateg" in action_lower:
-                return WorkflowType.PLAN_STRATEGY
-                
-        elif intent.category == IntentCategory.LEARNING:
-            return WorkflowType.LEARN_PATTERN
+    async def _persist_workflow_to_database(self, workflow: Workflow):
+        """Persist domain workflow to database using repository pattern"""
+        repos = await RepositoryFactory.get_repositories()
+        try:
+            # Create database workflow from domain workflow
+            db_workflow = await repos["workflows"].create_from_domain(workflow)
             
-        # Log unmapped intents for debugging
-        logger.warning(
-            f"No workflow mapping for intent: category={intent.category.value}, "
-            f"action={intent.action}"
-        )
-        return None
+            # Create database tasks for each domain task
+            for task in workflow.tasks:
+                await repos["tasks"].create_from_domain(db_workflow.id, task)
+            
+            await repos["session"].commit()
+            logger.info("Workflow persisted to database", workflow_id=workflow.id)
+        except Exception as e:
+            await repos["session"].rollback()
+            logger.error("Failed to persist workflow", workflow_id=workflow.id, error=str(e))
+        finally:
+            await repos["session"].close()
         
     async def execute_workflow(self, workflow_id: str) -> Dict[str, Any]:
         """
-        Execute a workflow asynchronously
+        Execute a workflow asynchronously using domain objects
         """
         workflow = self.workflows.get(workflow_id)
         if not workflow:
             raise ValueError(f"Workflow {workflow_id} not found")
         
         workflow.status = WorkflowStatus.RUNNING
-        workflow.started_at = datetime.now()
         
         # Update status in database
         repos = await RepositoryFactory.get_repositories()
@@ -115,24 +102,24 @@ class OrchestrationEngine:
             )
             await repos["session"].commit()
             
+            # Execute tasks using domain workflow methods
             while task := workflow.get_next_task():
                 await self._execute_task(workflow, task)
                 
                 # Persist task results after each execution
-                await self._persist_task_update(task)
+                await self._persist_task_update(workflow_id, task)
                 
                 if workflow.status == WorkflowStatus.FAILED:
                     break
             
             if workflow.is_complete():
                 workflow.status = WorkflowStatus.COMPLETED
-                workflow.completed_at = datetime.now()
                 
                 # Update final workflow status
                 await repos["workflows"].update_status(
                     workflow_id,
                     WorkflowStatus.COMPLETED,
-                    output_data=workflow.output_data
+                    output_data=workflow.context  # Use context as output
                 )
                 await repos["session"].commit()
                 
@@ -155,17 +142,16 @@ class OrchestrationEngine:
         
         return workflow.to_dict()
     
-    async def _persist_task_update(self, task: Task):
-        """Persist task updates to database"""
+    async def _persist_task_update(self, workflow_id: str, task: Task):
+        """Persist task updates to database using repository pattern"""
         repos = await RepositoryFactory.get_repositories()
         try:
+            # Update database task from domain task
             await repos["tasks"].update(
                 task.id,
                 status=task.status,
-                output_data=task.output_data,
-                error=task.error,
-                started_at=task.started_at,
-                completed_at=task.completed_at
+                output_data=task.result,
+                error=task.error
             )
             await repos["session"].commit()
         except Exception as e:
@@ -175,9 +161,8 @@ class OrchestrationEngine:
             await repos["session"].close()
     
     async def _execute_task(self, workflow: Workflow, task: Task):
-        """Execute a single task"""
+        """Execute a single task using domain objects"""
         task.status = TaskStatus.RUNNING
-        task.started_at = datetime.now()
         
         try:
             handler = self.task_handlers.get(task.type)
@@ -187,19 +172,25 @@ class OrchestrationEngine:
             # Execute task
             result = await handler(workflow, task)
             
-            # Update task with results
-            task.status = TaskStatus.COMPLETED
-            task.completed_at = datetime.now()
-            task.output_data = result.output_data
-            
-            # Update workflow context
-            workflow.context.update(result.output_data or {})
+            # Update domain task with results
+            if result.success:
+                task.status = TaskStatus.COMPLETED
+                task.result = result.output_data
+                
+                # Update workflow context
+                if result.output_data:
+                    workflow.context.update(result.output_data)
+            else:
+                task.status = TaskStatus.FAILED
+                task.error = result.error or "Task execution failed"
+                workflow.status = WorkflowStatus.FAILED
             
             logger.info(
                 "Task completed",
                 workflow_id=workflow.id,
                 task_id=task.id,
-                task_type=task.type.value
+                task_type=task.type.value if task.type else "unknown",
+                success=result.success
             )
             
         except Exception as e:
@@ -216,7 +207,7 @@ class OrchestrationEngine:
     # Task handler implementations
     async def _analyze_request(self, workflow: Workflow, task: Task) -> TaskResult:
         """Analyze the original request using LLM"""
-        original_message = workflow.input_data.get("original_message", "")
+        original_message = workflow.context.get("original_message", "")
         
         prompt = f"""Analyze this product management request and extract key information:
 
@@ -274,7 +265,7 @@ List concrete requirements, acceptance criteria, and technical specifications.""
         repos = await RepositoryFactory.get_repositories()
         try:
             work_item = await repos["work_items"].create(
-                title=workflow.input_data.get("original_message", "")[:100],
+                title=workflow.context.get("original_message", "")[:100],
                 description=workflow.context.get("requirements", ""),
                 status="open",
                 external_refs={}
@@ -415,7 +406,7 @@ List concrete requirements, acceptance criteria, and technical specifications.""
 
     async def _placeholder_handler(self, workflow: Workflow, task: Task) -> TaskResult:
         """Placeholder for unimplemented handlers"""
-        logger.info(f"Placeholder handler for {task.type.value}")
+        logger.info(f"Placeholder handler for {task.type.value if task.type else 'unknown'}")
         return TaskResult(
             success=True,
             output_data={"placeholder": True}
