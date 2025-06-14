@@ -10,7 +10,9 @@ from enum import Enum
 from uuid import uuid4
 
 # Import shared types for consistency
-from services.shared_types import TaskType, TaskStatus
+from services.shared_types import TaskType, TaskStatus, IntentCategory, WorkflowType, WorkflowStatus
+
+
 
 # Core Entities
 @dataclass
@@ -64,13 +66,6 @@ class WorkItem:
     metadata: Dict[str, Any] = field(default_factory=dict)
     created_at: datetime = field(default_factory=datetime.now)
 
-# Intent System
-class IntentCategory(Enum):
-    EXECUTION = "execution"    # Create, update, status
-    ANALYSIS = "analysis"      # Trends, risks, opportunities
-    SYNTHESIS = "synthesis"    # Generate docs, summarize
-    STRATEGY = "strategy"      # Prioritize, plan, recommend
-    LEARNING = "learning"      # What worked, patterns
 
 @dataclass  
 class Intent:
@@ -82,18 +77,6 @@ class Intent:
     confidence: float = 0.0
     created_at: datetime = field(default_factory=datetime.now)
 
-# Workflow Management
-class WorkflowType(Enum):
-    CREATE_TICKET = "create_ticket"
-    ANALYZE_DOCUMENT = "analyze_document"
-    GENERATE_REPORT = "generate_report"
-    REVIEW_ISSUE = "review_issue"
-
-class WorkflowStatus(Enum):
-    PENDING = "pending"
-    RUNNING = "running"
-    COMPLETED = "completed"
-    FAILED = "failed"
 
 @dataclass
 class Task:
