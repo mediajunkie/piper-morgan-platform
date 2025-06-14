@@ -57,26 +57,93 @@ with st.sidebar:
     st.markdown("---")
     st.header("🏢 Context Settings")
 
-    # Client/Business selector with "Add new..." option
-    # Use key="client_name" to directly link widget value to session state
+    # Client/Business selector - fixed warning
     st.text_input(
         "Client/Business Unit",
-        value=st.session_state.get('client_name', st.session_state.client_options[0] if st.session_state.client_options else ""),
-        key="client_name" # Direct assignment to st.session_state.client_name
+        key="client_name"
     )
 
-    # Project selector with "Add new..." option
-    # Use key="project_name" to directly link widget value to session state
+    # Project selector - fixed warning
     st.text_input(
         "Project Name (e.g., Piper Morgan)",
-        value=st.session_state.get('project_name', st.session_state.project_options[0] if st.session_state.project_options else ""),
-        key="project_name" # Direct assignment to st.session_state.project_name
+        key="project_name"
     )
 
     st.markdown("---")
-    # Button to add new client/project options - this part's logic would need expansion
-    # if st.button("Add New Client/Project Option"):
-    #     st.session_state.show_add_new = True
+    st.header("📄 Knowledge Upload")
+    
+    # Context level selector
+    context_level = st.selectbox(
+        "Knowledge Context Level",
+        ["PM Fundamentals", "Business Context", "Product Context", "Task Context"],
+        help="Choose the appropriate knowledge hierarchy level"
+    )
+    
+    # Context level descriptions
+    context_descriptions = {
+        "PM Fundamentals": "Core PM methodology, frameworks, best practices",
+        "Business Context": "Client-specific information, industry knowledge", 
+        "Product Context": "Project-specific details, product requirements",
+        "Task Context": "Specific issue patterns, implementation details"
+    }
+    
+    st.caption(context_descriptions[context_level])
+    
+    uploaded_file = st.file_uploader(
+        "Upload Document",
+        type=['pdf', 'docx', 'txt', 'md'],
+        help="Upload documents to add to the knowledge base"
+    )
+    
+    if uploaded_file is not None:
+        st.info(f"📄 {uploaded_file.name} ({uploaded_file.size} bytes)")
+        st.info(f"🎯 Context: {context_level}")
+        
+        if st.button("Add to Knowledge Base"):
+            with st.spinner(f"Processing {uploaded_file.name}..."):
+                try:
+                    # Save uploaded file temporarily
+                    import tempfile
+                    with tempfile.NamedTemporaryFile(delete=False, suffix=f".{uploaded_file.name.split('.')[-1]}") as tmp_file:
+                        tmp_file.write(uploaded_file.read())
+                        tmp_file_path = tmp_file.name
+                    
+                    # Create document with metadata
+                    documents = [{
+                        "page_content": uploaded_file.read().decode('utf-8') if uploaded_file.name.endswith(('.txt', '.md')) else f"Document: {uploaded_file.name}",
+                        "metadata": {
+                            "source": uploaded_file.name,
+                            "context_level": context_level,
+                            "file_type": uploaded_file.name.split('.')[-1],
+                            "size": uploaded_file.size
+                        }
+                    }]
+                    
+                    # Add to knowledge base
+                    st.session_state.knowledge_base.add_documents(documents)
+                    
+                    # Clean up temp file
+                    import os
+                    os.unlink(tmp_file_path)
+                    
+                    # Store success message in session state so it persists
+                    st.session_state.upload_success = f"✅ Added '{uploaded_file.name}' to knowledge base as '{context_level}' context!"
+                    st.session_state.doc_count = st.session_state.knowledge_base.collection.count()
+                    
+                except Exception as e:
+                    st.session_state.upload_error = f"❌ Error processing document: {str(e)}"
+    
+    # Display persistent messages
+    if hasattr(st.session_state, 'upload_success'):
+        st.success(st.session_state.upload_success)
+        st.info(f"📊 Knowledge base now has {st.session_state.doc_count} documents")
+        # Clear after showing
+        del st.session_state.upload_success
+        del st.session_state.doc_count
+        
+    if hasattr(st.session_state, 'upload_error'):
+        st.error(st.session_state.upload_error)
+        del st.session_state.upload_error
 
 # Display chat messages
 for message in st.session_state.messages:

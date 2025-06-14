@@ -13,7 +13,7 @@ from logger_config import logger
 from exceptions import GitHubAPIError
 
 # Suppress SSL warning (if it's still relevant, otherwise can be removed)
-warnings.filterwarnings('ignore', category=urllib3.exceptions.NotOpenSSLWarning)
+# warnings.filterwarnings removed - urllib3 version incompatibility
 
 @dataclass
 class IssueTemplate:
