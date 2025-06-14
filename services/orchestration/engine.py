@@ -1,8 +1,10 @@
 """
 Orchestration Engine
 Coordinates multi-step workflows for PM tasks
+PM-008 Github integration
 """
 import asyncio
+import structlog
 from typing import Dict, Any, Optional, List
 from datetime import datetime
 
@@ -13,25 +15,44 @@ from services.database import RepositoryFactory
 from services.shared_types import WorkflowType, WorkflowStatus, TaskType, TaskStatus
 from .workflows import Workflow, WorkflowDefinition, WORKFLOW_DEFINITIONS
 from .tasks import Task, TaskResult
+from services.integrations.github.issue_analyzer import GitHubIssueAnalyzer
+from services.llm.clients import llm_client
 
 logger = structlog.get_logger()
 
 class OrchestrationEngine:
+    
     def __init__(self):
         self.workflows = {}
         from .workflow_factory import WorkflowFactory
         self.factory = WorkflowFactory()
+        self.github_analyzer = GitHubIssueAnalyzer()
+
+        self.task_handlers = {
+            TaskType.ANALYZE_REQUEST: self._analyze_request,
+            TaskType.EXTRACT_REQUIREMENTS: self._extract_requirements,
+            TaskType.IDENTIFY_DEPENDENCIES: self._identify_dependencies,
+            TaskType.CREATE_WORK_ITEM: self._create_work_item,
+            TaskType.NOTIFY_STAKEHOLDERS: self._notify_stakeholders,
+            
+            # PM-008: GitHub Issue Analysis handler
+            TaskType.ANALYZE_GITHUB_ISSUE: self._analyze_github_issue,
+            
+            # Fallback for unmapped task types
+            TaskType.GITHUB_CREATE_ISSUE: self._placeholder_handler,
+            TaskType.JIRA_CREATE_TICKET: self._placeholder_handler,
+            TaskType.SLACK_SEND_MESSAGE: self._placeholder_handler,
+            TaskType.GENERATE_DOCUMENT: self._placeholder_handler,
+            TaskType.CREATE_SUMMARY: self._placeholder_handler,
+        }
 
     async def create_workflow_from_intent(self, intent: Intent) -> Optional[Workflow]:
         """Create appropriate workflow based on intent with database persistence"""
-    # ... new implementation ...
         workflow = await self.factory.create_from_intent(intent)
         if workflow:
             self.workflows[workflow.id] = workflow
         return workflow
     
-# Replace the _map_intent_to_workflow method in services/orchestration/engine.py
-
     def _map_intent_to_workflow(self, intent: Intent) -> Optional[WorkflowType]:
         """Map intent to appropriate workflow type"""
         
@@ -281,6 +302,117 @@ List concrete requirements, acceptance criteria, and technical specifications.""
             output_data={"notified": True}
         )
     
+    async def _analyze_github_issue(self, workflow: Workflow, task: Task) -> TaskResult:
+        """
+        PM-008: Analyze GitHub issue using GitHubIssueAnalyzer
+        
+        Expects workflow context to contain either:
+        - 'github_url': Direct GitHub issue URL
+        - 'original_message': Message containing GitHub URL
+        """
+        try:
+            # Extract GitHub URL from workflow context
+            github_url = workflow.context.get('github_url')
+            
+            if not github_url:
+                # Try to extract URL from original message
+                original_message = workflow.context.get('original_message', '')
+                github_url = self._extract_github_url_from_message(original_message)
+            
+            if not github_url:
+                return TaskResult(
+                    success=False,
+                    error="No GitHub URL found in request. Please provide a GitHub issue URL."
+                )
+            
+            # Perform issue analysis using PM-008
+            logger.info(f"Analyzing GitHub issue: {github_url}")
+            analysis_result = await self.github_analyzer.analyze_issue_by_url(github_url)
+            
+            if not analysis_result['success']:
+                return TaskResult(
+                    success=False,
+                    error=f"Issue analysis failed: {analysis_result['error']}"
+                )
+            
+            # Extract analysis data
+            analysis = analysis_result['analysis']
+            issue_info = analysis_result['issue']
+            
+            # Format results for user
+            formatted_response = self._format_issue_analysis_response(analysis, issue_info)
+            
+            return TaskResult(
+                success=True,
+                output_data={
+                    'analysis_complete': True,
+                    'github_url': github_url,
+                    'issue_number': issue_info['number'],
+                    'issue_title': issue_info['title'],
+                    'repository': issue_info['repository'],
+                    'analysis_summary': analysis.summary,
+                    'draft_comment': analysis.draft_comment,
+                    'draft_rewrite': analysis.draft_rewrite,
+                    'confidence': analysis.confidence,
+                    'formatted_response': formatted_response,
+                    'raw_analysis': analysis_result
+                }
+            )
+            
+        except Exception as e:
+            logger.error(f"GitHub issue analysis failed: {e}")
+            return TaskResult(
+                success=False,
+                error=f"Analysis error: {str(e)}"
+            )
+
+    def _extract_github_url_from_message(self, message: str) -> Optional[str]:
+        """Extract GitHub URL from natural language message"""
+        import re
+        
+        # Look for GitHub URLs in the message
+        github_url_pattern = r'https?://github\.com/[^/]+/[^/]+/(?:issues|pull)/\d+'
+        matches = re.findall(github_url_pattern, message)
+        
+        if matches:
+            return matches[0]  # Return first match
+        
+        return None
+
+    def _format_issue_analysis_response(self, analysis, issue_info) -> str:
+        """Format analysis results for user presentation"""
+        
+        response_parts = [
+            f"📋 **Issue Analysis Complete**",
+            f"**Issue**: #{issue_info['number']} - {issue_info['title']}",
+            f"**Repository**: {issue_info['repository']}",
+            f"**Confidence**: {analysis.confidence:.1f}/1.0",
+            "",
+            "**📝 Analysis Summary:**"
+        ]
+        
+        # Add summary bullets
+        for i, bullet in enumerate(analysis.summary, 1):
+            response_parts.append(f"{i}. {bullet}")
+        
+        response_parts.extend([
+            "",
+            "**💬 Suggested Comment:**",
+            f"```{analysis.draft_comment[:200]}{'...' if len(analysis.draft_comment) > 200 else ''}```",
+            "",
+            "**📄 Suggested Rewrite:**",
+            f"```{analysis.draft_rewrite[:200]}{'...' if len(analysis.draft_rewrite) > 200 else ''}```"
+        ])
+        
+        if analysis.knowledge_context:
+            response_parts.extend([
+                "",
+                "**🧠 Used Knowledge:**",
+                f"- {len(analysis.knowledge_context)} relevant PM practices found"
+            ])
+        
+        return "\n".join(response_parts)
+
     async def _placeholder_handler(self, workflow: Workflow, task: Task) -> TaskResult:
         """Placeholder for unimplemented handlers"""
         logger.info(f"Placeholder handler for {task.type.value}")

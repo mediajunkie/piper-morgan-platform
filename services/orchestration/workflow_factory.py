@@ -1,9 +1,10 @@
 """
 Workflow Factory - Creates workflows from intents
 PM-002 Implementation
+PM-008 Github integration
 """
 from typing import Optional, Dict, Any
-from domain.models import Intent, Workflow, WorkflowType, WorkflowStatus, Task, IntentCategory
+from services.domain.models import Intent, Workflow, WorkflowType, WorkflowStatus, Task, IntentCategory
 
 class WorkflowFactory:
     """Factory for creating workflows from intents"""
@@ -15,12 +16,20 @@ class WorkflowFactory:
     def _register_default_workflows(self):
         """Register default workflow mappings"""
         self.workflow_registry = {
+            # Existing mappings
             'create_github_issue': WorkflowType.CREATE_TICKET,
             'create_ticket': WorkflowType.CREATE_TICKET,
             'create_issue': WorkflowType.CREATE_TICKET,
             'analyze_document': WorkflowType.ANALYZE_DOCUMENT,
             'generate_report': WorkflowType.GENERATE_REPORT,
             'review_issue': WorkflowType.REVIEW_ISSUE,
+            
+            # PM-008: GitHub Issue Analysis mappings
+            'analyze_github_issue': WorkflowType.REVIEW_ISSUE,
+            'analyze_issue': WorkflowType.REVIEW_ISSUE,
+            'review_github_issue': WorkflowType.REVIEW_ISSUE,
+            'check_issue': WorkflowType.REVIEW_ISSUE,
+            'analyze_data': WorkflowType.REVIEW_ISSUE,  # Maps fallback classifier action
         }
     
     async def create_from_intent(self, intent: Intent) -> Optional[Workflow]:
@@ -34,7 +43,7 @@ class WorkflowFactory:
             if intent.category == IntentCategory.EXECUTION:
                 workflow_type = WorkflowType.CREATE_TICKET
             elif intent.category == IntentCategory.ANALYSIS:
-                workflow_type = WorkflowType.ANALYZE_DOCUMENT
+                workflow_type = WorkflowType.REVIEW_ISSUE  # PM-008: Default analysis to issue review
             elif intent.category == IntentCategory.SYNTHESIS:
                 workflow_type = WorkflowType.GENERATE_REPORT
             elif intent.category == IntentCategory.STRATEGY:
@@ -57,5 +66,13 @@ class WorkflowFactory:
                 status=WorkflowStatus.PENDING
             )
             workflow.tasks.append(task)
-        
+        elif workflow_type == WorkflowType.REVIEW_ISSUE:
+            # PM-008: Add GitHub Issue Analysis task
+            task = Task(
+                name='Analyze GitHub Issue',
+                status=WorkflowStatus.PENDING
+            )
+            workflow.tasks.append(task)
+
         return workflow
+        

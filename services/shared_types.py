@@ -42,9 +42,10 @@ class TaskType(Enum):
     # Synthesis tasks
     GENERATE_DOCUMENT = "generate_document"
     CREATE_SUMMARY = "create_summary"
-    
+
     # Integration tasks
     GITHUB_CREATE_ISSUE = "github_create_issue"
+    ANALYZE_GITHUB_ISSUE = "analyze_github_issue"
     JIRA_CREATE_TICKET = "jira_create_ticket"
     SLACK_SEND_MESSAGE = "slack_send_message"
 
